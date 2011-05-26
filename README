@@ -1,0 +1,13 @@
+This project contains 5 files:
+a) this README
+b) 2 sh scripts to load and dump dbases from postgresQL
+c) ddw.sql (builds the DICOM Datawarehouse dbase)
+d) mirth_ddw.xml (a MIRTH channel to gather and parse DICOM info into the dbase)
+
+To use this sware, the user must independantly install MIRTH Connect (> V2.x), 
+postgreSQL (>V9.x), and pgAdmin. Then:
+
+a) for MIRTH, open the MIRTH admin tool and import the channel
+b) for postgresql open the pgAdmin tool and create the stub for the "ddw"
+	dbase, owner "postgres". Then from the command line run the load 
+	script

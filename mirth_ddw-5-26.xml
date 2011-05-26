@@ -1,0 +1,1641 @@
+<com.mirth.connect.model.Channel>
+  <id>c3dddea8-6555-43bd-b156-a764af3d9767</id>
+  <name>mirth_ddw_5-26</name>
+  <description>DICOM Data Warehouse&#xd;
+&#xd;
+Steve Langer 2011&#xd;
+&#xd;
+General purpose DICOM reciever, parser and mapper to enable DICOM data mining. No warrenty is expressed or implied&#xd;
+&#xd;
+External Dependencies: This MIRTH channel is meant to work with the DDW.sql postgreSQL dbase&#xd;
+&#xd;
+</description>
+  <enabled>true</enabled>
+  <version>2.0.0.5127</version>
+  <lastModified>
+    <time>1306434423343</time>
+    <timezone>America/Chicago</timezone>
+  </lastModified>
+  <revision>33</revision>
+  <sourceConnector>
+    <name>sourceConnector</name>
+    <properties>
+      <property name="fileAge">1000</property>
+      <property name="checkFileAge">1</property>
+      <property name="charsetEncoding">DEFAULT_ENCODING</property>
+      <property name="autoDelete">1</property>
+      <property name="validateConnections">1</property>
+      <property name="scheme">file</property>
+      <property name="pollingType">interval</property>
+      <property name="DataType">File Reader</property>
+      <property name="moveToDirectory"></property>
+      <property name="regex">0</property>
+      <property name="secure">1</property>
+      <property name="moveToPattern"></property>
+      <property name="binary">1</property>
+      <property name="FTPAnonymous">1</property>
+      <property name="pollingFrequency">1000</property>
+      <property name="processBatchFiles">0</property>
+      <property name="moveToErrorDirectory"></property>
+      <property name="password">anonymous</property>
+      <property name="sortAttribute">date</property>
+      <property name="passive">1</property>
+      <property name="host">c:/dicom_image_test</property>
+      <property name="fileFilter">*.dcm</property>
+      <property name="timeout">10000</property>
+      <property name="username">anonymous</property>
+    </properties>
+    <transformer>
+      <steps>
+        <step>
+          <sequenceNumber>0</sequenceNumber>
+          <name>patientsName</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00100010&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;patientsName&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>patientsName</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00100010&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>1</sequenceNumber>
+          <name>patientId</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00100020&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;patientId&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>patientId</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00100020&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>2</sequenceNumber>
+          <name>patientsBirthDate</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00100030&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;patientsBirthDate&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>patientsBirthDate</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00100030&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>3</sequenceNumber>
+          <name>patientsSex</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00100040&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;patientsSex&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>patientsSex</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00100040&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>4</sequenceNumber>
+          <name>bodyPartExamined</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00180015&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;bodyPartExamined&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>bodyPartExamined</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00180015&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>5</sequenceNumber>
+          <name>patientsAge</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00101010&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;patientsAge&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>patientsAge</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00101010&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>6</sequenceNumber>
+          <name>patientsSize</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00101020&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;patientsSize&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>patientsSize</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00101020&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>7</sequenceNumber>
+          <name>patientsWeight</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00101030&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;patientsWeight&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>patientsWeight</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00101030&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>8</sequenceNumber>
+          <name>pregnancyStatus</name>
+          <script>var mapping;try { mapping = msg[&apos;tag001021C0&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;pregnancyStatus&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>pregnancyStatus</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag001021C0&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>9</sequenceNumber>
+          <name>modality</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00080060&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;modality&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>modality</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00080060&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>10</sequenceNumber>
+          <name>manufacturer</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00080070&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;manufacturer&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>manufacturer</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00080070&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>11</sequenceNumber>
+          <name>manufacturersModelName</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00081090&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;manufacturersModelName&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>manufacturersModelName</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00081090&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>12</sequenceNumber>
+          <name>softwareVersions</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00181020&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;softwareVersions&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>softwareVersions</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00181020&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>13</sequenceNumber>
+          <name>sourceApplicationEntityTitle</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00020016&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;sourceApplicationEntityTitle&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>sourceApplicationEntityTitle</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00020016&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>14</sequenceNumber>
+          <name>stationName</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00081010&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;stationName&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>stationName</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00081010&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>15</sequenceNumber>
+          <name>accessionNumber</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00080050&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;accessionNumber&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>accessionNumber</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00080050&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>16</sequenceNumber>
+          <name>studyDate</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00080020&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;studyDate&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>studyDate</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00080020&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>17</sequenceNumber>
+          <name>studyTime</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00080030&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;studyTime&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>studyTime</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00080030&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>18</sequenceNumber>
+          <name>seriesTime</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00080031&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;seriesTime&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>seriesTime</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00080031&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>19</sequenceNumber>
+          <name>acquisitionTime</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00080032&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;acquisitionTime&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>acquisitionTime</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00080032&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>20</sequenceNumber>
+          <name>contentTime</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00080033&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;contentTime&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>contentTime</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00080033&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>21</sequenceNumber>
+          <name>referringPhysiciansName</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00080090&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;referringPhysiciansName&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>referringPhysiciansName</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00080090&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>22</sequenceNumber>
+          <name>institutionName</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00080080&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;institutionName&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>institutionName</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00080080&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>23</sequenceNumber>
+          <name>operatorsName</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00081070&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;operatorsName&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>operatorsName</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00081070&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>24</sequenceNumber>
+          <name>nameOfPhysiciansReadingStudy</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00081060&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;nameOfPhysiciansReadingStudy&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>nameOfPhysiciansReadingStudy</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00081060&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>25</sequenceNumber>
+          <name>studyInstanceUid</name>
+          <script>var mapping;try { mapping = msg[&apos;tag0020000D&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;studyInstanceUid&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>studyInstanceUid</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag0020000D&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>26</sequenceNumber>
+          <name>sopInstanceUid</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00080018&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;sopInstanceUid&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>sopInstanceUid</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00080018&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>27</sequenceNumber>
+          <name>seriesInstanceUid</name>
+          <script>var mapping;try { mapping = msg[&apos;tag0020000E&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;seriesInstanceUid&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>seriesInstanceUid</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag0020000E&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>28</sequenceNumber>
+          <name>sopClassUid</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00080016&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;sopClassUid&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>sopClassUid</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00080016&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>29</sequenceNumber>
+          <name>studyDescription</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00081030&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;studyDescription&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>studyDescription</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00081030&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>30</sequenceNumber>
+          <name>seriesDescription</name>
+          <script>var mapping;try { mapping = msg[&apos;tag0008103E&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;seriesDescription&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>seriesDescription</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag0008103E&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>31</sequenceNumber>
+          <name>studyId</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00200010&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;studyId&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>studyId</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00200010&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>32</sequenceNumber>
+          <name>seriesNumber</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00200011&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;seriesNumber&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>seriesNumber</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00200011&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>33</sequenceNumber>
+          <name>acquisitionNumber</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00200012&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;acquisitionNumber&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>acquisitionNumber</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00200012&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>34</sequenceNumber>
+          <name>instanceNumber</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00200013&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;instanceNumber&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>instanceNumber</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00200013&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>35</sequenceNumber>
+          <name>protocolName</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00181030&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;protocolName&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>protocolName</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00181030&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>36</sequenceNumber>
+          <name>imageType</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00080008&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;imageType&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>imageType</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00080008&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>37</sequenceNumber>
+          <name>imageAndFluoroscopyAreaDoseProduct</name>
+          <script>var mapping;try { mapping = msg[&apos;tag0018115E&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;imageAndFluoroscopyAreaDoseProduct&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>imageAndFluoroscopyAreaDoseProduct</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag0018115E&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>38</sequenceNumber>
+          <name>relativeXrayExposure</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00181405&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;relativeXrayExposure&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>relativeXrayExposure</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00181405&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>39</sequenceNumber>
+          <name>viewPosition</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00185101&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;viewPosition&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>viewPosition</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00185101&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+        <step>
+          <sequenceNumber>40</sequenceNumber>
+          <name>filterMaterial</name>
+          <script>var mapping;try { mapping = msg[&apos;tag00187050&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;filterMaterial&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
+          <type>Mapper</type>
+          <data class="map">
+            <entry>
+              <string>Variable</string>
+              <string>filterMaterial</string>
+            </entry>
+            <entry>
+              <string>DefaultValue</string>
+              <string></string>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00187050&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
+            </entry>
+            <entry>
+              <string>isGlobal</string>
+              <string>channel</string>
+            </entry>
+          </data>
+        </step>
+      </steps>
+      <inboundTemplate encoding="base64"></inboundTemplate>
+      <outboundTemplate encoding="base64"></outboundTemplate>
+      <inboundProtocol>DICOM</inboundProtocol>
+      <outboundProtocol>DICOM</outboundProtocol>
+      <inboundProperties/>
+      <outboundProperties/>
+    </transformer>
+    <filter>
+      <rules/>
+    </filter>
+    <transportName>File Reader</transportName>
+    <mode>SOURCE</mode>
+    <enabled>true</enabled>
+    <version>2.0.0.5127</version>
+  </sourceConnector>
+  <destinationConnectors>
+    <com.mirth.connect.model.Connector>
+      <name>Destination 1</name>
+      <properties>
+        <property name="host">query</property>
+        <property name="query"></property>
+        <property name="username">postgres</property>
+        <property name="password">postgres</property>
+        <property name="driver">org.postgresql.Driver</property>
+        <property name="script">///////////////////////////////////////
+// Dicom Data Warehouse (DDW)
+// Author: Steve G Langer April 2011
+// Purpose: Mirth Dicom channel for the DDW dbase
+////////////////////////////////////////
+try {
+	var func = &quot;mirth:main &quot;;
+	logError (&quot;\n\n\n start &quot; + func + DateUtil.getCurrentDate(&apos;yyyy-M-d H:m:s&apos;));
+	var dbConn = DatabaseConnectionFactory.createDatabaseConnection(&apos;org.postgresql.Driver&apos;,&apos;jdbc:postgresql://localhost:5432/ddw&apos;,&apos;postgres&apos;,&apos;postgres&apos;);
+	//get whole DICOM header, mine them in mapCustomTags()
+    var msg = new XML(messageObject.getTransformedData().toString());
+	var updatePatient, updateExam, updateSeries, updateAcq, updateInstance, updateAlert ;
+	var parmPatient, parmExam, parmSeries, parmAcq, parmInstance, parmAlert ;
+	var checkVersion, checkPatient, checkExamUID, checkSeriesUID, checkAcq, checkInstance, checkAlert, chkExamProcess ;
+	var parmVersion, parmChkPatient, parmChkExamUID, parmChkSeriesUID, parmCheckAcq, parmCheckInstance, parmCheckAlert, parmChkExamProcess ;
+	var Production = true, Archive = false ;
+
+	buildStrings ();
+
+	// Bail if patient info is null
+	if ( $(&apos;patientId&apos;) == &apos;&apos; || $(&apos;patientsName&apos;) == &apos;&apos;) {
+		var s = &quot;no_patient&gt; info, aborting. StudyUID = &quot; + $(&apos;studyInstanceUid&apos;);
+		throw s;
+	}
+
+	// check if this scanner Version is known
+	var result = qryExist (checkVersion, parmVersion);
+	if (!result.next()) {
+		var s = &quot;unknown_version&gt; on &quot; + $(&apos;stationName&apos;) + &quot;: &quot; + $(&apos;manufacturersModelName&apos;) + &quot; &quot; + $(&apos;softwareVersions&apos;);
+		throw s ;
+	} else {
+		var versionID = result.getString(&apos;oid&apos;);
+	}
+
+	// Now create patient -only- if patient is not known
+	result = qryExist (checkPatient, parmChkPatient) ;
+	if (!result.next() ) {
+		result = dbaseUpdate (updatePatient, parmPatient);
+	}
+
+	// create Exam row -only- if examUID is unknown
+	result = qryExist (checkExamUID, parmChkExamUID);
+	if (!result.next()){
+		result = dbaseUpdate (updateExam, parmExam);
+		result = mapCustomTags(&quot;exam&quot;);	
+	}
+
+	// create Series row -only- if seriesUID is unknown
+	result = qryExist (checkSeriesUID, parmChkSeriesUID);
+	if (!result.next()){
+		// We could not know versionID at buildStrings()
+		parmSeries.add (versionID );
+		result = dbaseUpdate (updateSeries, parmSeries);
+		result = mapCustomTags(&quot;series&quot;);		
+	}
+
+	// create Acquisition row -only- if does not exist
+	result = qryExist (checkAcq, parmCheckAcq);
+	if (!result.next()){
+		result = dbaseUpdate (updateAcq, parmAcq);
+		//result = mapCustomTags(&quot;acquisition&quot;);
+	}
+
+	// create Instance row  -only- if instanceUID is unknown
+	result = qryExist (checkInstance, parmCheckInstance);
+	if (!result.next()){
+		result = dbaseUpdate (updateInstance, parmInstance);
+		result = mapCustomTags(&quot;instance&quot;);
+		// this if-block is for the instance binary object table (i.e DOSE SC)
+		if ($(&apos;modality&apos;.indexOf(&apos;CT&apos;)) &gt; -1 &amp;&amp; ($(&apos;imageType&apos;).indexOf(&apos;SECONDARY&apos;)) &gt; -1 ) {
+            var jpegs = new DICOMUtil.convertDICOM(&apos;jpg&apos;, messageObject);
+            var data = FileUtil.decode(jpegs);
+			parms = new java.util.ArrayList();
+			parms.add ($(&apos;sopInstanceUid&apos;));
+			parms.add ($(&apos;studyDate&apos;));
+			parms.add (messageObject.getTransformedData());
+			parms.add (FileUtil.decode(jpegs));
+			dbaseUpdate(&quot;INSERT INTO instance_binary_object (instance_uid, date_of_exam, header, content) VALUES (?, ?, ?, ?)&quot;, parms);
+		} else if (Archive) {
+			parms = new java.util.ArrayList();
+			parms.add ($(&apos;sopInstanceUid&apos;));
+			parms.add ($(&apos;studyDate&apos;));
+			parms.add (messageObject.getTransformedData());
+			dbaseUpdate(&quot;INSERT INTO instance_binary_object (instance_uid, date_of_exam, header) VALUES (?, ?, ?)&quot;, parms);
+		}
+	}	
+
+	// Last update the Exams_to_Process table
+	result = qryExist (chkExamProcess, parmChkExamProcess);
+	if (result.next()){
+		dbaseUpdate (&quot;DELETE FROM exams_to_process WHERE exam_uid = ? &quot;, parmExamProcess);
+	}
+	result = dbaseUpdate (updateExamProcess, parmExamProcess);
+}
+catch (ee) {
+	var err_str = &quot;Exception in &quot; + func + &quot;\n&quot; + ee ;
+	var alert_type = ee.substring(0, ee.indexOf(&apos;&gt;&apos;)) ;
+	parmCheckAlert.add (alert_type);
+	result = qryExist (checkAlert, parmCheckAlert);
+
+	if (Production &amp;&amp; result.next() ) {
+		// write to logFile, dbase and if urgent email
+		logError (err_str + &quot;\n exception end&quot; );
+		parmAlert.add (result.getString(&apos;alert_type&apos;));
+		parmAlert.add (err_str);
+		dbaseUpdate (updateAlert, parmAlert);
+		if (result.getString(&apos;criticality&apos;) &gt;1) {
+			sendEmail(result.getString(&apos;email_to_address&apos;), &apos;&apos;, result.getString(&apos;email_title&apos;), err_str) ;
+		}
+	} else {
+		logError (err_str + &quot;\n exception end&quot; );
+	}
+}
+finally {
+	dbConn.close();
+	logError (&quot;normal end &quot; + DateUtil.getCurrentDate(&apos;H:m:s&apos;));
+}
+
+
+function buildStrings () {
+////////////////////////////////////
+// Purpose: Centrallize all SQL here
+// Caller: main
+/////////////////////////////////////
+	func = &quot;mirth:buildStrings &quot;;
+
+	// check version
+	checkVersion = &quot;SELECT oid FROM known_scanners WHERE model ~* ? AND vers ~* ?&quot; ;
+	parmVersion = new java.util.ArrayList();
+	parmVersion.add( $(&apos;manufacturersModelName&apos;));
+	parmVersion.add($(&apos;softwareVersions&apos;).replace(&apos;\\&apos;,&apos;_&apos;));
+
+	// check-update patient
+	checkPatient = &quot;SELECT oid FROM patient WHERE mpi_pat_id ~* ? &quot; ;
+	parmChkPatient = new java.util.ArrayList();
+	parmChkPatient.add( $(&apos;patientId&apos;));
+
+	updatePatient = &quot;INSERT INTO patient (pat_name, dob, local_pat_id, mpi_pat_id, gender) VALUES (?,?,?,?,?)&quot;;
+	parmPatient = new java.util.ArrayList();
+	parmPatient.add ($(&apos;patientsName&apos;));
+	parmPatient.add ($(&apos;patientsBirthDate&apos;));
+	parmPatient.add ($(&apos;patientId&apos;));
+	parmPatient.add ($(&apos;patientId&apos;));
+	parmPatient.add ($(&apos;patientsSex&apos;));
+
+	// check-update examUID
+	checkExamUID = &quot;SELECT oid FROM exams WHERE exam_uid ~* ? &quot;;
+	parmChkExamUID = new java.util.ArrayList();
+	parmChkExamUID.add ($(&apos;studyInstanceUid&apos;));
+
+	updateExam = &quot;INSERT INTO exams (mpi_pat_id, exam_uid, accession, date_of_exam, time_of_exam, refer_doc, exam_descrip, exam_code, campus, operator, radiologist) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)&quot;;
+	parmExam = new java.util.ArrayList();
+	parmExam.add ( $(&apos;patientId&apos;));
+	parmExam.add ($(&apos;studyInstanceUid&apos;));
+	parmExam.add ( $(&apos;accessionNumber&apos;));
+	parmExam.add ( $(&apos;studyDate&apos;));
+	parmExam.add ($(&apos;studyTime&apos;) );
+	parmExam.add ( $(&apos;referringPhysiciansName&apos;));
+	parmExam.add ( $(&apos;studyDescription&apos;));
+	parmExam.add ( &apos;&apos;);
+	parmExam.add ( $(&apos;institutionName&apos;));
+	parmExam.add ( $(&apos;operatorsName&apos;));
+	parmExam.add ( $(&apos;nameOfPhysiciansReadingStudy&apos;));
+	
+	// check-update seriesUID
+	checkSeriesUID = &quot;SELECT oid FROM series WHERE series_uid ~* ? &quot;;
+	parmChkSeriesUID = new java.util.ArrayList();
+	parmChkSeriesUID.add ($(&apos;seriesInstanceUid&apos;));	
+
+	updateSeries = &quot;INSERT INTO series (exam_uid, series_uid, station_id, aet, series_description, protocol_name, series_name, body_part, series_number, version_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)&quot;;
+	parmSeries = new java.util.ArrayList();
+	parmSeries.add ( $(&apos;studyInstanceUid&apos;));
+	parmSeries.add ($(&apos;seriesInstanceUid&apos;) );
+	parmSeries.add ( $(&apos;stationName&apos;));
+	parmSeries.add ( $(&apos;sourceApplicationEntityTitle&apos;));
+	parmSeries.add ($(&apos;seriesDescription&apos;) );
+	parmSeries.add ( $(&apos;protocolName&apos;));
+	parmSeries.add ( $(&apos;seriesDescription&apos;));
+	parmSeries.add ( $(&apos;bodyPartExamined&apos;));
+	parmSeries.add ( $(&apos;seriesNumber&apos;));
+	///// VersionID add deferred until call to dbaseUpdate
+
+	// check-update Acquisition
+	checkAcq = &quot;SELECT oid FROM acquisition WHERE acq_time ~* ?&quot;;
+	parmCheckAcq = new java.util.ArrayList();
+	parmCheckAcq.add ($(&apos;acquisitionTime&apos;));
+
+	updateAcq = &quot;INSERT INTO acquisition (acq_time, acq_number, sop_class, exam_uid, series_uid, event_uid) VALUES (?, ?, ?, ?, ?, ?)&quot;;
+	parmAcq = new java.util.ArrayList();
+	parmAcq.add ($(&apos;acquisitionTime&apos;));
+	parmAcq.add ($(&apos;acquisitionNumber&apos;));
+	parmAcq.add ($(&apos;sopClassUid&apos;));
+	parmAcq.add ($(&apos;studyInstanceUid&apos;));
+	parmAcq.add ($(&apos;seriesInstanceUid&apos;));
+	parmAcq.add (&apos;&apos;);
+
+	// check-update InstanceUID
+	checkInstance = &quot;SELECT oid FROM instance WHERE instance_uid ~* ? &quot;;
+	parmCheckInstance = new java.util.ArrayList();
+	parmCheckInstance.add ($(&apos;sopInstanceUid&apos;));
+
+	updateInstance = &quot;INSERT INTO instance (exam_uid, series_uid, instance_uid, content_time, instance_number, image_type) VALUES (?, ?, ?, ?, ?, ?)&quot;;
+	parmInstance = new java.util.ArrayList();
+	parmInstance.add ($(&apos;studyInstanceUid&apos;));
+	parmInstance.add ($(&apos;seriesInstanceUid&apos;));
+	parmInstance.add ($(&apos;sopInstanceUid&apos;));
+	parmInstance.add ($(&apos;contentTime&apos;));
+	parmInstance.add ($(&apos;instanceNumber&apos;));
+	parmInstance.add ( $(&apos;imageType&apos;));
+
+	// check-Update Exam_to_Process
+	chkExamProcess = &quot;SELECT oid FROM exams_to_process WHERE exam_uid ~* ?&quot;;
+	parmChkExamProcess = new java.util.ArrayList();
+	parmChkExamProcess.add ($(&apos;studyInstanceUid&apos;));
+
+	updateExamProcess = &quot;INSERT INTO exams_to_process (exam_uid) VALUES (?)&quot;;
+	parmExamProcess =  new java.util.ArrayList();
+	parmExamProcess.add ($(&apos;studyInstanceUid&apos;));
+	
+	// check-update Alert_types
+	checkAlert = &quot;SELECT * FROM dict_alert_types WHERE alert_type ~* ?&quot;;
+	parmCheckAlert = new java.util.ArrayList();
+	///// defer add until Catch
+
+	updateAlert = &quot;INSERT INTO alerts (exam_uid, mpi_pat_id, date_open, alert_type, message) VALUES (?, ?, ?, ?, ?)&quot;;
+	parmAlert = new java.util.ArrayList();
+	parmAlert.add ($(&apos;studyInstanceUid&apos;));
+	parmAlert.add ($(&apos;patientId&apos;));
+	parmAlert.add (DateUtil.getCurrentDate(&apos;yyyy-M-d H:m:s&apos;));
+	////// other elements deferred until Catch
+
+	return ;
+}
+
+function dbaseUpdate (str, params) {
+////////////////////////////////////
+// Purpose: Centralize dbase updates and
+//	error handling
+// Caller: Main and mapCustomTags
+/////////////////////////////////////
+	func= &quot;mirth:dbaseUpdate &quot;;
+
+	logError (str + params);
+	var loc_result = dbConn.executeUpdate (str, params);
+	//logError (result.next);
+	return loc_result;
+}
+
+
+function qryExist (str, param) {
+////////////////////////////////////
+// Purpose: Centralize dbase qry and error
+//	handling
+// Caller: Main and mapCustomTags()
+/////////////////////////////////////
+	func = &quot;mirth:qryExist &quot;;
+	
+	//logError (str + param);
+	var loc_result = dbConn.executeCachedQuery(str, param);
+	return loc_result;
+}
+
+
+function mapCustomTags (scope) {
+/////////////////////////////////////////////
+// Purpose: This is the secret sauce that
+//	enables indexing arbitrary tags per Version
+//	w/out new Tables/Columns or NoSQL
+// Caller: Exam/Series/Instance update Blocks in main
+/////////////////////////////////////////////
+	func = &quot;mirth:mapCustomTags &quot;;
+	var strUpdate, uid ;
+	var strQry = &quot;SELECT std_name, unit, dicom_grp_ele FROM mapp_view WHERE scope ~* ? AND version_id = ?&quot;;
+	var parmUpdate = new java.util.ArrayList();
+	var parmQry = new java.util.ArrayList();
+	parmQry.add (scope);
+	parmQry.add (parseInt(versionID));
+
+	if (scope == &apos;exam&apos;) {
+		strUpdate = &quot;INSERT INTO exams_mapped_values (exam_uid, std_name, value, unit) VALUES (?, ?, ?, ?)&quot;;
+		uid = $(&apos;studyInstanceUid&apos;) ;
+	} else if (scope == &apos;series&apos;) {
+		strUpdate = &quot;INSERT INTO series_mapped_values (series_uid, std_name, value, unit) VALUES (?, ?, ?, ?)&quot;;
+		uid = $(&apos;seriesInstanceUid&apos;) ;
+	} else if (scope == &apos;acquisition&apos;) {
+		strUpdate = &quot;INSERT INTO acquisition_mapped_values (event_uid, std_name, value, unit) VALUES (?, ?, ?, ?)&quot;;
+		uid = $(&apos;&apos;) ;
+	} else if (scope == &apos;instance&apos;) {
+		strUpdate = &quot;INSERT INTO instance_mapped_values (instance_uid, std_name, value, unit) VALUES (?, ?, ?, ?)&quot;;
+		uid = $(&apos;sopInstanceUid&apos;) ;
+	}
+
+	// need a View linking stdNames to mappedValues
+	// then Qry the View for the list of custom tags
+	// Loop over the result set, and pluck named tags from
+	// -var msg- defined in the try block
+	result = qryExist (strQry, parmQry) ;
+	while (result.next() ) {
+		parmUpdate.add (uid);
+		parmUpdate.add (result.getString(&apos;std_name&apos;));
+		parmUpdate.add (msg[result.getString(&apos;dicom_grp_ele&apos;)].toString());		
+		parmUpdate.add (result.getString(&apos;unit&apos;));
+		dbaseUpdate (strUpdate, parmUpdate);
+		parmUpdate.clear();
+	}
+}
+
+
+function logError (str) {
+////////////////////////////////////
+// Purpose: Central output for debug messaging
+// Caller: throughout this code
+/////////////////////////////////////
+	str = str + &quot;\n&quot; ;
+   	FileUtil.write(&apos;c:\\error_images\\log.rtf&apos;, true, str);
+	return ;
+}
+
+
+function sendEmail(to, cc, title, content){
+////////////////////////////////////
+// Purpose: For Exceptions in Prod, this
+//		emails ALerts to &quot;to&quot;
+// Caller: Catch
+/////////////////////////////////////
+   var host = &apos;smtprelay.mayo.edu&apos;;
+   var port = &apos;25&apos; , auth = false, secure = &apos;&apos;, password = &apos;&apos;;
+   var username = &apos;dlradtrac@mayo.edu&apos;, from = &apos;dlradtrac@mayo.edu&apos;;
+   var smtpConn = new SMTPConnection(host, port, auth, secure, username, password);
+   smtpConn.send(to, cc, from, title, content);
+}
+</property>
+        <property name="DataType">Database Writer</property>
+        <property name="URL">jdbc:postgresql://localhost:5432/ddw</property>
+        <property name="useScript">1</property>
+      </properties>
+      <transformer>
+        <steps/>
+        <inboundTemplate encoding="base64"></inboundTemplate>
+        <outboundTemplate encoding="base64"></outboundTemplate>
+        <inboundProtocol>DICOM</inboundProtocol>
+        <outboundProtocol>DICOM</outboundProtocol>
+        <inboundProperties/>
+        <outboundProperties/>
+      </transformer>
+      <filter>
+        <rules/>
+      </filter>
+      <transportName>Database Writer</transportName>
+      <mode>DESTINATION</mode>
+      <enabled>true</enabled>
+      <version>2.0.0.5127</version>
+    </com.mirth.connect.model.Connector>
+    <com.mirth.connect.model.Connector>
+      <name>Destination 2</name>
+      <properties>
+        <property name="FTPAnonymous">1</property>
+        <property name="template">here:
+${date.get(&apos;yyyy-M-d H.m.s&apos;)}
+${patientsName}
+${patientId}
+${implementationVersionName}
+${sourceApplicationEntityTitle}
+${message.transformedData}</property>
+        <property name="outputPattern">transformed.rtf</property>
+        <property name="passive">1</property>
+        <property name="host">c:/error_images</property>
+        <property name="password">anonymous</property>
+        <property name="DataType">File Writer</property>
+        <property name="charsetEncoding">DEFAULT_ENCODING</property>
+        <property name="directory"></property>
+        <property name="secure">1</property>
+        <property name="timeout">10000</property>
+        <property name="username">anonymous</property>
+        <property name="binary">0</property>
+        <property name="scheme">file</property>
+        <property name="outputAppend">0</property>
+        <property name="validateConnections">1</property>
+      </properties>
+      <transformer>
+        <steps/>
+        <inboundTemplate encoding="base64"></inboundTemplate>
+        <inboundProtocol>DICOM</inboundProtocol>
+        <outboundProtocol>DICOM</outboundProtocol>
+        <inboundProperties/>
+        <outboundProperties/>
+      </transformer>
+      <filter>
+        <rules/>
+      </filter>
+      <transportName>File Writer</transportName>
+      <mode>DESTINATION</mode>
+      <enabled>true</enabled>
+      <version>2.0.0.5127</version>
+    </com.mirth.connect.model.Connector>
+  </destinationConnectors>
+  <properties>
+    <property name="synchronous">true</property>
+    <property name="encryptData">false</property>
+    <property name="clearGlobalChannelMap">true</property>
+    <property name="store_messages">false</property>
+    <property name="dont_store_filtered">false</property>
+    <property name="initialState">started</property>
+    <property name="max_message_age">-1</property>
+    <property name="transactional">false</property>
+    <property name="error_messages_only">false</property>
+  </properties>
+  <preprocessingScript>// Modify the message variable below to pre process data
+return message;</preprocessingScript>
+  <postprocessingScript>// This script executes once after a message has been processed
+return;</postprocessingScript>
+  <deployScript>// This script executes once when the channel is deployed
+// You only have access to the globalMap and globalChannelMap here to persist data
+return;
+</deployScript>
+  <shutdownScript>// This script executes once when the channel is undeployed
+// You only have access to the globalMap and globalChannelMap here to persist data
+return;</shutdownScript>
+</com.mirth.connect.model.Channel>
