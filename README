@@ -1,13 +1,21 @@
-This project contains 5 files:
+This project contains 6 files:
 a) this README
 b) 2 sh scripts to load and dump dbases from postgresQL
 c) ddw.sql (builds the DICOM Datawarehouse dbase)
 d) mirth_ddw.xml (a MIRTH channel to gather and parse DICOM info into the dbase)
+e) ddw-schema.bmp (a relationship diagram of the ddw schema)
 
 To use this sware, the user must independantly install MIRTH Connect (> V2.x), 
 postgreSQL (>V9.x), and pgAdmin. Then:
 
 a) for MIRTH, open the MIRTH admin tool and import the channel
-b) for postgresql open the pgAdmin tool and create the stub for the "ddw"
+b) for postgresql 
+	i) during install set the account/password to be postgres/postgres
+	ii) open the pgAdmin tool and create the stub for the "ddw"
 	dbase, owner "postgres". Then from the command line run the load 
 	script
+c) On MS-Windows, make two folders
+	i) c:\dicom_image_test
+	ii) c:\error_images
+
+To test the system, make sure that both MIRTH and postgresql are running. Then drop a DICOM file into the folder c:\dicom_image_test. You shuold see a new file, C:\error_images\log.rtf. Also, you should see new entries in the Patient, Exam and Series tables in the DDW dbase. 
