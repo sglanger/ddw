@@ -4,10 +4,26 @@
 
 SET statement_timeout = 0;
 SET client_encoding = 'UTF8';
-SET standard_conforming_strings = off;
+SET standard_conforming_strings = on;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
-SET escape_string_warning = off;
+
+--
+-- Name: ddw; Type: DATABASE; Schema: -; Owner: postgres
+--
+
+CREATE DATABASE ddw WITH TEMPLATE = template0 ENCODING = 'UTF8' LC_COLLATE = 'English_United States.1252' LC_CTYPE = 'English_United States.1252';
+
+
+ALTER DATABASE ddw OWNER TO postgres;
+
+\connect ddw
+
+SET statement_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SET check_function_bodies = false;
+SET client_min_messages = warning;
 
 --
 -- Name: ddw; Type: COMMENT; Schema: -; Owner: postgres
@@ -24,13 +40,18 @@ External Dependencies:
 
 
 --
--- Name: plpgsql; Type: PROCEDURAL LANGUAGE; Schema: -; Owner: postgres
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
 --
 
-CREATE OR REPLACE PROCEDURAL LANGUAGE plpgsql;
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
 
-ALTER PROCEDURAL LANGUAGE plpgsql OWNER TO postgres;
+--
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
 
 SET search_path = public, pg_catalog;
 
@@ -89,7 +110,9 @@ BEGIN
 	DELETE FROM exams_derived_values * ;
 	DELETE FROM exams_mapped_values * ;
 	DELETE FROM exams * ;
-
+	DELETE FROM alerts * ;
+	DELETE FROM exams_to_process *;
+	
 	-- if we got all the way here we succeeded
 	success := 'true';
 	return ;
@@ -197,6 +220,53 @@ $$;
 ALTER FUNCTION public.delete_series_tree(uid text, OUT success text) OWNER TO postgres;
 
 --
+-- Name: dispatcher(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION dispatcher(OUT status text) RETURNS text
+    LANGUAGE plpgsql
+    AS $$DECLARE
+--------------------------------------
+-- Purpose: run by a timer trigger, looks at 
+--	table exams_to_process and then
+--	a) mapps an exam to an analytic algorithm for processing
+--	b) verfies analytic runs
+--	c) on success removes exam from exams_to_process table
+-- Caller: time trigger
+---------------------------------------
+	func text;
+	result exams_to_process%ROWTYPE;
+	id text ;
+	now timestamp without time zone := now() ;
+	threshold timestamp without time zone :='00:10:00';
+
+BEGIN
+	func :='ddw:dispatcher';
+
+	for result in select * from exams_to_process LOOP
+		if now - result.last_touched > threshold then 
+			-- first find out what the SWare versionID is for this series
+			select into id version_id from series where series.exam_uid = result.exam_uid ;
+			-- Next find out what group this Sware version maps to
+			select into id group_id from known_scanners where known_scanners.oid = cast (id as OID) ;
+
+			-- Now we know what algorithm to invoke, pass it the study_uid
+			--SELECT id(result.exam_uid);
+
+			-- And last remove the entry now that it's been analyzed
+			DELETE from exams_to_process where exam_uid = result.exam_uid ;
+		end if;
+	end LOOP;
+
+	status :=id;
+	return ;
+END
+$$;
+
+
+ALTER FUNCTION public.dispatcher(OUT status text) OWNER TO postgres;
+
+--
 -- Name: purge_phi(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -281,6 +351,16 @@ CREATE TABLE acquisition_mapped_values (
 ALTER TABLE public.acquisition_mapped_values OWNER TO postgres;
 
 --
+-- Name: acquisition_view; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW acquisition_view AS
+    SELECT acquisition_mapped_values.event_uid, acquisition_mapped_values.std_name, acquisition_mapped_values.value, acquisition_mapped_values.unit FROM acquisition_mapped_values UNION SELECT acquisition_derived_values.event_uid, acquisition_derived_values.std_name, acquisition_derived_values.value, acquisition_derived_values.unit FROM acquisition_derived_values ORDER BY 1;
+
+
+ALTER TABLE public.acquisition_view OWNER TO postgres;
+
+--
 -- Name: alerts; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -341,7 +421,8 @@ CREATE TABLE known_scanners (
     make text NOT NULL,
     model text NOT NULL,
     vers text NOT NULL,
-    group_id integer
+    group_id integer,
+    version_id integer NOT NULL
 );
 
 
@@ -359,7 +440,7 @@ COMMENT ON COLUMN known_scanners.group_id IS 'This is a short hand way to refer 
 --
 
 CREATE VIEW derived_scanner_version AS
-    SELECT derived_view.std_name FROM derived_view, known_scanners WHERE ((derived_view.version_id)::oid = known_scanners.oid) ORDER BY known_scanners.oid;
+    SELECT derived_view.std_name, derived_view.unit, derived_view.scope, known_scanners.model, known_scanners.group_id FROM derived_view, known_scanners WHERE ((derived_view.version_id)::oid = (known_scanners.version_id)::oid) ORDER BY known_scanners.version_id;
 
 
 ALTER TABLE public.derived_scanner_version OWNER TO postgres;
@@ -379,35 +460,6 @@ CREATE TABLE dict_alert_types (
 
 
 ALTER TABLE public.dict_alert_types OWNER TO postgres;
-
---
--- Name: exams; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE TABLE exams (
-    mpi_pat_id text NOT NULL,
-    exam_uid text NOT NULL,
-    accession text NOT NULL,
-    date_of_exam text NOT NULL,
-    time_of_exam text,
-    refer_doc text,
-    exam_descrip text,
-    exam_code text,
-    campus text,
-    operator text,
-    triggers_check text,
-    radiologist text
-);
-
-
-ALTER TABLE public.exams OWNER TO postgres;
-
---
--- Name: TABLE exams; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON TABLE exams IS 'Location for Exam level, standard data that is not SOP class specific or custom (shadow) tags';
-
 
 --
 -- Name: exams_derived_values; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
@@ -444,6 +496,45 @@ CREATE TABLE exams_mapped_values (
 
 
 ALTER TABLE public.exams_mapped_values OWNER TO postgres;
+
+--
+-- Name: exam_view; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW exam_view AS
+    SELECT exams_mapped_values.exam_uid, exams_mapped_values.std_name, exams_mapped_values.value, exams_mapped_values.unit FROM exams_mapped_values UNION SELECT exams_derived_values.exam_uid, exams_derived_values.std_name, exams_derived_values.value, exams_derived_values.unit FROM exams_derived_values ORDER BY 1;
+
+
+ALTER TABLE public.exam_view OWNER TO postgres;
+
+--
+-- Name: exams; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE exams (
+    mpi_pat_id text NOT NULL,
+    exam_uid text NOT NULL,
+    accession text NOT NULL,
+    date_of_exam text NOT NULL,
+    time_of_exam text,
+    refer_doc text,
+    exam_descrip text,
+    exam_code text,
+    campus text,
+    operator text,
+    triggers_check text,
+    radiologist text
+);
+
+
+ALTER TABLE public.exams OWNER TO postgres;
+
+--
+-- Name: TABLE exams; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON TABLE exams IS 'Location for Exam level, standard data that is not SOP class specific or custom (shadow) tags';
+
 
 --
 -- Name: exams_to_process; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
@@ -517,6 +608,44 @@ CREATE TABLE instance_mapped_values (
 ALTER TABLE public.instance_mapped_values OWNER TO postgres;
 
 --
+-- Name: instance_view; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW instance_view AS
+    SELECT instance_mapped_values.instance_uid, instance_mapped_values.std_name, instance_mapped_values.value, instance_mapped_values.unit FROM instance_mapped_values UNION SELECT instance_derived_values.instance_uid, instance_derived_values.std_name, instance_derived_values.value, instance_derived_values.unit FROM instance_derived_values ORDER BY 1;
+
+
+ALTER TABLE public.instance_view OWNER TO postgres;
+
+--
+-- Name: known_scanners_version_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE known_scanners_version_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.known_scanners_version_id_seq OWNER TO postgres;
+
+--
+-- Name: known_scanners_version_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE known_scanners_version_id_seq OWNED BY known_scanners.version_id;
+
+
+--
+-- Name: known_scanners_version_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('known_scanners_version_id_seq', 18, true);
+
+
+--
 -- Name: mapped_values; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -544,7 +673,7 @@ ALTER TABLE public.mapp_view OWNER TO postgres;
 --
 
 CREATE VIEW mapp_scanner_version AS
-    SELECT mapp_view.std_name, mapp_view.unit, mapp_view.scope, mapp_view.dicom_grp_ele, mapp_view.version_id, known_scanners.modality, known_scanners.make, known_scanners.model, known_scanners.vers, known_scanners.group_id FROM mapp_view, known_scanners WHERE ((mapp_view.version_id)::oid = known_scanners.oid) ORDER BY mapp_view.version_id;
+    SELECT mapp_view.std_name, mapp_view.unit, mapp_view.scope, mapp_view.dicom_grp_ele, mapp_view.version_id, known_scanners.modality, known_scanners.make, known_scanners.model, known_scanners.vers, known_scanners.group_id FROM mapp_view, known_scanners WHERE ((mapp_view.version_id)::oid = (known_scanners.version_id)::oid) ORDER BY known_scanners.vers;
 
 
 ALTER TABLE public.mapp_scanner_version OWNER TO postgres;
@@ -558,7 +687,9 @@ CREATE TABLE patient (
     dob text NOT NULL,
     local_pat_id text NOT NULL,
     mpi_pat_id text NOT NULL,
-    gender text NOT NULL
+    gender text NOT NULL,
+    height integer,
+    weight integer
 );
 
 
@@ -722,6 +853,23 @@ CREATE TABLE series_mapped_values (
 ALTER TABLE public.series_mapped_values OWNER TO postgres;
 
 --
+-- Name: series_view; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW series_view AS
+    SELECT series_mapped_values.series_uid, series_mapped_values.std_name, series_mapped_values.value, series_mapped_values.unit FROM series_mapped_values UNION SELECT series_derived_values.series_uid, series_derived_values.std_name, series_derived_values.value, series_derived_values.unit FROM series_derived_values ORDER BY 1;
+
+
+ALTER TABLE public.series_view OWNER TO postgres;
+
+--
+-- Name: version_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE known_scanners ALTER COLUMN version_id SET DEFAULT nextval('known_scanners_version_id_seq'::regclass);
+
+
+--
 -- Data for Name: acquisition; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
@@ -758,6 +906,7 @@ COPY alerts (exam_uid, mpi_pat_id, alert_type, closed_status, date_open, date_cl
 --
 
 COPY derived_values (version_id, std_name) FROM stdin;
+24873	instance_exposure
 \.
 
 
@@ -816,6 +965,9 @@ sensitivity	text	instance
 view_position	text	instance
 relative_exposure	text	instance
 compression_force	N	instance
+coil	text	series
+pulse_seq	text	series
+procedure_code_seq	text	instance
 \.
 
 
@@ -887,16 +1039,21 @@ COPY instance_mapped_values (instance_uid, std_name, value, unit) FROM stdin;
 -- Data for Name: known_scanners; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY known_scanners (modality, make, model, vers, group_id) FROM stdin;
-MR	GE	SIGNA HDx	14_LX_MR Software release:14.0_M5_0737.f	1
-CT	Siemens	Sensation 64	syngo CT 2007S	2
-CR	Fuji	5000	A18	3
-CR	Fuji	5501ES	A07	3
-DR	GE	"Thunder Platform"	DM_Platform_Magic_Release_Patch_1-4.3-2	4
-CR	Philips	PCR Eleva	1.2.1_PMS1.1.1 XRG GXRIM4.0	5
-MG	Lorad	Lorad Selenia	AWS:MAMMODROC_3_4_1_8_PXCM:1.4.0.7_ARR:1.7.3.10	6
-CT	Siemens	Sensation 16	syngo CT 2007S	2
-RF	Siemens	Siremobil	3VC02C0	7
+COPY known_scanners (modality, make, model, vers, group_id, version_id) FROM stdin;
+MR	GE	SIGNA HDx	14_LX_MR Software release:14.0_M5_0737.f	1	24848
+MR	GE Medical Systems	Signa HDxt	15_LX_MR Software release:15.0_M4_0910.a	1	57370
+CR	Fuji	5000	A18	3	25275
+CR	Fuji	5501ES	A07	3	25436
+DR	GE	"Thunder Platform"	DM_Platform_Magic_Release_Patch_1-4.3-2	4	25411
+MG	Lorad	Lorad Selenia	AWS:MAMMODROC_3_4_1_8_PXCM:1.4.0.7_ARR:1.7.3.10	6	25617
+CT	Siemens	Sensation 64	syngo CT 2007S	2	25236
+CR	Philips	PCR Eleva	1.2.1_PMS1.1.1 XRG GXRIM4.0	5	25314
+CT	Siemens	Sensation 16	syngo CT 2007S	2	41120
+CT	Siemens	SOMATOM Definition AS+ syngo CT	syngo CT 2011A.1.04_P02	2	24873
+CR	Philips	PCR Eleva	PCR_Eleva_R1.1.5_PMS1.1 XRG GXRIM2.0	5	13
+CR	Philips	PCR Eleva	PCR_Eleva_R1.1.1_PMS1.1 XRG GXRIM2.0	5	14
+CR 	Philips	digital DIAGNOST	Version 1.5.3.1	6	15
+MR 	GE	SIGNA HDx	14_LX_MR Software release:14.0_M5A_0828.b	1	18
 \.
 
 
@@ -954,7 +1111,7 @@ instance_exposure	tag00181152	25617
 compression_force	tag001811A2	25617
 focal_spot	tag00181190	25617
 view_position	tag00185101	25617
-kvp	tag00180060	24873
+inversion_time	tag00180082	57370
 slice_thickness	tag00180050	24873
 dist_source_detect	tag00181110	24873
 dist_source_isocenter	tag00181111	24873
@@ -966,6 +1123,46 @@ filter_type	tag00181160	24873
 gen_power	tag00181170	24873
 focal_spot	tag00181190	24873
 tube_voltage	tag00180060	24873
+slice_thickness	tag00180050	41120
+echo_time	tag00180081	57370
+dist_source_detect	tag00181110	41120
+dist_source_isocenter	tag00181111	41120
+tube_current	tag00181151	41120
+exposure_time	tag00181150	41120
+filter_type	tag00181160	41120
+gen_power	tag00181170	41120
+focal_spot	tag00181190	41120
+tube_voltage	tag00180060	41120
+recon_fov	tag00180090	41120
+instance_exposure	tag00181152	41120
+coil	tag00181250	24848
+pulse_seq	tag0019109C	24848
+coil	tag00181250	57370
+pulse_seq	tag0019109C	57370
+slice_thickness	tag00180050	57370
+field_strength	tag00180087	57370
+interslice_space	tag00180088	57370
+flip_angle	tag00181314	57370
+image_freq	tag00180084	18
+tube_voltage	tag00180060	41120
+sensitivity	tag00186000	13
+processing_code	tag00181401	13
+processing_descrip	tag00181400	13
+sensitivity	tag00186000	14
+processing_code	tag00181401	14
+processing_descrip	tag00181400	14
+tube_voltage	tag00180060	24873
+procedure_code_seq	tag00081032	15
+slice_thickness	tag00180050	18
+field_strength	tag00180087	18
+interslice_space	tag00180088	18
+flip_angle	tag00181314	18
+echo_time	tag00180081	18
+repetition_time	tag00180080	18
+inversion_time	tag00180082	18
+acquisition_type	tag00180023	18
+coil	tag00181250	18
+pulse_seq	tag0019109C	18
 \.
 
 
@@ -973,7 +1170,7 @@ tube_voltage	tag00180060	24873
 -- Data for Name: patient; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY patient (pat_name, dob, local_pat_id, mpi_pat_id, gender) FROM stdin;
+COPY patient (pat_name, dob, local_pat_id, mpi_pat_id, gender, height, weight) FROM stdin;
 \.
 
 
@@ -1221,6 +1418,13 @@ CREATE INDEX mpi_index ON exams USING btree (mpi_pat_id);
 --
 
 CREATE INDEX series_derived_values_series_uid_idx ON series_derived_values USING btree (series_uid);
+
+
+--
+-- Name: series_exam_uid_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX series_exam_uid_idx ON series USING btree (exam_uid);
 
 
 --
