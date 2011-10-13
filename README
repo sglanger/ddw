@@ -5,6 +5,7 @@ c) ddw.sql (builds the DICOM Datawarehouse dbase)
 d) mirth_ddw.xml (MIRTH channel to gather/parse DICOM info into the dbase)
 e) ddw-schema.bmp (a relationship diagram of the ddw schema)
 
+Installation:
 To use this sware, the user must independantly install MIRTH Connect (> V2.x, requires Java JRE 1.6 or newer), postgreSQL (>V9.x), and pgAdmin. Then:
 
 a) for MIRTH, open the MIRTH admin tool and import the channel
