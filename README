@@ -1,7 +1,7 @@
 This project contains 6 files:
 a) this README
 b) 2 sh scripts to load and dump dbases from postgresQL
-c) ddw.sql (builds the DICOM Datawarehouse dbase)
+c) ddw-purged.sql (builds the DICOM Datawarehouse dbase)
 d) mirth_ddw.xml (MIRTH channel to gather/parse DICOM info into the dbase)
 e) ddw-schema.bmp (a relationship diagram of the ddw schema)
 
