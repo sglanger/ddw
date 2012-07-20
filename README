@@ -1,7 +1,7 @@
 This project contains 6 files:
 a) this README
 b) 2 sh scripts to load and dump dbases from postgresQL
-c) ddw.sql (builds the DICOM Datawarehouse dbase)
+c) ddw-purged.sql (builds the DICOM Datawarehouse dbase)
 d) mirth_ddw.xml (MIRTH channel to gather/parse DICOM info into the dbase)
 e) ddw-schema.bmp (a relationship diagram of the ddw schema)
 
@@ -15,8 +15,8 @@ b) for postgresql
 	dbase, owner "postgres". Then from the command line run the load 
 	script
 c) On MS-Windows, make two folders
-	i) c:\dicom_image_test
-	ii) c:\error_images
+	i) d:\avail (the folder mirth uses as a Source)
+	ii) c:\error_images (folder where logs will be written)
 
 Usage Notes:
 a) out of the box, MIRTH uses it's own local "Derby" dbase. This fills quickly. You will be better off having MIRTH use postgres. Make a stub dbase in postgres called MIRTH, owner "postgres". Then go to the MIRTH Server Manager/Database, and fill out.

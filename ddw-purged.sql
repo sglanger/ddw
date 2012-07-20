@@ -9,15 +9,15 @@ SET check_function_bodies = false;
 SET client_min_messages = warning;
 
 --
--- Name: ddw; Type: DATABASE; Schema: -; Owner: postgres
+-- Name: t-ddw; Type: DATABASE; Schema: -; Owner: postgres
 --
 
-CREATE DATABASE ddw WITH TEMPLATE = template0 ENCODING = 'UTF8' LC_COLLATE = 'English_United States.1252' LC_CTYPE = 'English_United States.1252';
+CREATE DATABASE "t-ddw" WITH TEMPLATE = template0 ENCODING = 'UTF8' LC_COLLATE = 'English_United States.1252' LC_CTYPE = 'English_United States.1252';
 
 
-ALTER DATABASE ddw OWNER TO postgres;
+ALTER DATABASE "t-ddw" OWNER TO postgres;
 
-\connect ddw
+\connect "t-ddw"
 
 SET statement_timeout = 0;
 SET client_encoding = 'UTF8';
@@ -26,10 +26,10 @@ SET check_function_bodies = false;
 SET client_min_messages = warning;
 
 --
--- Name: ddw; Type: COMMENT; Schema: -; Owner: postgres
+-- Name: t-ddw; Type: COMMENT; Schema: -; Owner: postgres
 --
 
-COMMENT ON DATABASE ddw IS 'DICOM Data Warehouse
+COMMENT ON DATABASE "t-ddw" IS 'DICOM Data Warehouse
 
 Steve Langer 2011
 
@@ -56,170 +56,6 @@ COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 SET search_path = public, pg_catalog;
 
 --
--- Name: delete_aquisition_tree(text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION delete_aquisition_tree(uid text, OUT success text) RETURNS text
-    LANGUAGE plpgsql
-    AS $$DECLARE
---------------------------------------
--- Purpose: Clean up PHI info at the acquisition level
--- Args:
--- Caller:
--------------------------------------------
-
-	--local vars
-	func text;
-BEGIN
-	func := 'ddw:delete_acquisition_tree' ;
-
-	-- assume it fails, change later if succeed
-	success := 'false';
-	DELETE FROM acquisition_derived_values * ;
-	DELETE FROM acquisition_mapped_values * ;
-	DELETE FROM acquisition * ;
-
-	-- if we got all the way here we succeeded
-	success := 'true';
-	return ;
-END
-$$;
-
-
-ALTER FUNCTION public.delete_aquisition_tree(uid text, OUT success text) OWNER TO postgres;
-
---
--- Name: delete_exam_tree(text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION delete_exam_tree(uid text, OUT success text) RETURNS text
-    LANGUAGE plpgsql
-    AS $$DECLARE
---------------------------------------
--- Purpose: Clean up PHI info at the exam level
--- Caller: purge_phi
--------------------------------------------
-
-	--local vars
-	func text;
-BEGIN
-	func := 'ddw:delete_exam_tree' ;
-
-	-- assume it fails, change later if succeed
-	success := 'false';
-	DELETE FROM exams_derived_values * ;
-	DELETE FROM exams_mapped_values * ;
-	DELETE FROM exams * ;
-	DELETE FROM alerts * ;
-	DELETE FROM exams_to_process *;
-	
-	-- if we got all the way here we succeeded
-	success := 'true';
-	return ;
-END
-$$;
-
-
-ALTER FUNCTION public.delete_exam_tree(uid text, OUT success text) OWNER TO postgres;
-
---
--- Name: delete_instance_tree(text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION delete_instance_tree(uid text, OUT success text) RETURNS text
-    LANGUAGE plpgsql
-    AS $$DECLARE
---------------------------------------
--- Purpose: Clean up PHI info at the instance level
--- Args:
--- Caller:
--------------------------------------------
-
-	--local vars
-	func text;
-BEGIN
-	func := 'ddw:delete_instance_tree' ;
-
-	-- assume it fails, change later if succeed
-	success := 'false';
-	DELETE FROM instance_derived_values * ; 
-	DELETE FROM instance_binary_object * ; 
-	DELETE FROM instance_mapped_values * ;
-	DELETE FROM instance * ;
-
-	-- if we got all the way here we succeeded
-	success := 'true';
-	return ;
-END
-$$;
-
-
-ALTER FUNCTION public.delete_instance_tree(uid text, OUT success text) OWNER TO postgres;
-
---
--- Name: delete_patient(text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION delete_patient(mrn text, OUT success text) RETURNS text
-    LANGUAGE plpgsql
-    AS $$DECLARE
---------------------------------------
--- Purpose: Clean up PHI info at the patient level
--- Caller: purge_phi
--------------------------------------------
-
-	--local vars
-	func text;
-BEGIN
-	func := 'ddw:delete_patient' ;
-
-	-- assume it fails, change later if succeed
-	success := 'false';
-	DELETE FROM patient * ;
-
-	-- if we got all the way here we succeeded
-	success := 'true';
-	return ;
-END
-$$;
-
-
-ALTER FUNCTION public.delete_patient(mrn text, OUT success text) OWNER TO postgres;
-
---
--- Name: delete_series_tree(text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION delete_series_tree(uid text, OUT success text) RETURNS text
-    LANGUAGE plpgsql
-    AS $$DECLARE
---------------------------------------
--- Purpose: Clean up PHI info at the series level
--- Args:
--- Caller:
--------------------------------------------
-
-	--local vars
-	func text;
-BEGIN
-	func := 'ddw:delete_series_tree' ;
-
-	-- assume it fails, change later if succeed
-	success := 'false';
-	DELETE FROM series_derived_values * ;
-	DELETE FROM series_mapped_values * ;
-	DELETE FROM series * ;
-
-	-- if we got all the way here we succeeded
-	success := 'true';
-	return ;
-END
-$$;
-
-
-ALTER FUNCTION public.delete_series_tree(uid text, OUT success text) OWNER TO postgres;
-
---
 -- Name: dispatcher(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -227,44 +63,126 @@ CREATE FUNCTION dispatcher(OUT status text) RETURNS text
     LANGUAGE plpgsql
     AS $$DECLARE
 --------------------------------------
--- Purpose: run by a timer trigger, looks at 
+-- Purpose: run by Parient table trigger, looks at 
 --	table exams_to_process and then
 --	a) mapps an exam to an analytic algorithm for processing
 --	b) verfies analytic runs
 --	c) on success removes exam from exams_to_process table
--- Caller: time trigger
+-- Caller: trigger on Patient table
 ---------------------------------------
+-- Note
+-- Functions that don't return a result set MUST NOT define a out parameter
+-- just use "return value;"
 	func text;
 	result exams_to_process%ROWTYPE;
 	id text ;
+	gid integer ;
 	now timestamp without time zone := now() ;
-	threshold timestamp without time zone :='00:10:00';
-
 BEGIN
 	func :='ddw:dispatcher';
-
+	-- clear log for each run
+	--delete from log *;
+	
 	for result in select * from exams_to_process LOOP
-		if now - result.last_touched > threshold then 
+		if current_date - cast(result.last_touched as date) > 0 then 
 			-- first find out what the SWare versionID is for this series
 			select into id version_id from series where series.exam_uid = result.exam_uid ;
 			-- Next find out what group this Sware version maps to
-			select into id group_id from known_scanners where known_scanners.oid = cast (id as OID) ;
+			select into gid group_id from known_scanners where known_scanners.version_id = cast (id as integer)  ;
 
 			-- Now we know what algorithm to invoke, pass it the study_uid
-			--SELECT id(result.exam_uid);
+			if gid = 1 then
+				-- GE MR
+				SELECT into status one(result.exam_uid);
+			elseif gid = 2 then
+				-- Siemens CT
+				--Select into status two(result.exam_uid);
+			elseif gid = 3 then
+				-- Fuji CR
+				--Select into status three(result.exam_uid);
+			elseif gid = 4 then
+				-- GE DR
+				--Select into status four(result.exam_uid);
+			elseif gid = 5 then
+				-- Philips CR
+				--Select into status five(result.exam_uid);
+			elseif gid = 10 then
+				-- Siemens MR
+				Select into status ten(result.exam_uid);
+			end if;
 
+			-- check here if status is OK
 			-- And last remove the entry now that it's been analyzed
-			DELETE from exams_to_process where exam_uid = result.exam_uid ;
+			--perform logger (func, status);
+			if status = 'ok' then
+				--perform logger (func, 'in OK');
+				DELETE from exams_to_process * where exam_uid = result.exam_uid ;
+			else
+				-- something must have broke
+				-- should raise an alert
+				perform logger (func, 'in else');
+			end if;
 		end if;
 	end LOOP;
 
-	status :=id;
 	return ;
 END
 $$;
 
 
 ALTER FUNCTION public.dispatcher(OUT status text) OWNER TO postgres;
+
+--
+-- Name: logger(text, text); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION logger(caller text, message text) RETURNS text
+    LANGUAGE plpgsql
+    AS $$declare
+--------------------------------------
+-- Purpose: General purpose logging for debug
+-- Caller: any stored procedure
+------------------------------------------
+	func text;
+	status text;
+	
+begin
+	func :='ddw:logger';
+	insert into log values (caller, message, now()) ;
+	return 'ok';
+end
+$$;
+
+
+ALTER FUNCTION public.logger(caller text, message text) OWNER TO postgres;
+
+--
+-- Name: one(text); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION one(study_uid text) RETURNS text
+    LANGUAGE plpgsql
+    AS $$declare
+------------------------------------------
+-- Purpose: GE MR header processor
+-- 	Right now this is a stub call to trim
+--	entries from the "exams-to-process" table
+-- Caller: Dispatcher
+-----------------------------------------
+	func text;
+	status text;
+
+begin
+	func :='ddw:one';
+	status :='ok';
+
+	--perform logger (func, status);
+	return status;
+end
+$$;
+
+
+ALTER FUNCTION public.one(study_uid text) OWNER TO postgres;
 
 --
 -- Name: purge_phi(); Type: FUNCTION; Schema: public; Owner: postgres
@@ -277,7 +195,6 @@ CREATE FUNCTION purge_phi(OUT success text) RETURNS text
 -- Purpose: purge all PHI
 -- Caller: external or User
 -------------------------------------------
-
 	--local vars
 	func text;
 BEGIN
@@ -285,12 +202,14 @@ BEGIN
 
 	-- assume it fails, change later if succeed
 	success := 'false';
-	-- user PERFORM instead of SELECT since we are throwing away the result
-	PERFORM delete_patient ('');
-	PERFORM delete_exam_tree ('');
-	PERFORM delete_series_tree ('');
-	PERFORM delete_aquisition_tree ('');
-	PERFORM delete_instance_tree ('');
+	-- use PERFORM instead of SELECT since we are throwing away the result
+	--PERFORM purger ('', 'test');
+
+	PERFORM purger ('', 'patient');	
+	PERFORM purger ('', 'exam');
+	PERFORM purger ('', 'series');
+	PERFORM purger ('', 'acquisition');
+	PERFORM purger ('', 'instance');
 	
 	-- if we got all the way here we succeeded
 	success := 'true';
@@ -300,6 +219,135 @@ $$;
 
 
 ALTER FUNCTION public.purge_phi(OUT success text) OWNER TO postgres;
+
+--
+-- Name: purger(text, text); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION purger(uid text, scope text) RETURNS text
+    LANGUAGE plpgsql
+    AS $$declare
+----------------------------------------
+-- Purpose: replace 5 different function with 
+-- 	this one
+-- Caller: purge_phi
+----------------------------------------------
+	func text;
+	status text;
+	template text;
+begin
+	func :='ddw:purger';
+	status := 'error';
+
+	if uid = '' then 
+		template :='*';
+	else
+		-- need to think about this
+		--template :='* where pateint.mrn =' uid;
+	end if;
+
+	if scope = 'patient' then
+		DELETE FROM patient template ;
+		status := 'ok';
+	elseif scope = 'exam' then
+		DELETE FROM exams_derived_values template ;
+		DELETE FROM exams_mapped_values template ;
+		DELETE FROM exams template ;
+		DELETE FROM alerts template ;
+		DELETE FROM exams_to_process template ;
+		status := 'ok';
+	elseif scope = 'series' then
+		DELETE FROM series_derived_values template ;
+		DELETE FROM series_mapped_values template ;
+		DELETE FROM series template ;
+		status := 'ok';
+	elseif scope = 'acquisition' then
+		DELETE FROM acquisition_derived_values template ;
+		DELETE FROM acquisition_mapped_values template ;
+		DELETE FROM acquisition template ;
+		status := 'ok';
+	elseif scope = 'instance' then
+		DELETE FROM instance_derived_values template ;
+		DELETE FROM instance_binary_object template ; 
+		DELETE FROM instance_mapped_values template ;
+		DELETE FROM instance template ;
+		status := 'ok';
+	elseif scope = 'test' then
+		perform logger (func, 'test');
+		status := 'ok';
+	end if;
+
+	--perform logger (func, status);
+	return status;
+end
+$$;
+
+
+ALTER FUNCTION public.purger(uid text, scope text) OWNER TO postgres;
+
+--
+-- Name: run_dispatcher(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION run_dispatcher() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$begin
+ -- example
+ -- http://www.postgresql.org/docs/8.1/static/plpgsql-trigger.html
+  perform dispatcher();
+  return NULL;
+end
+$$;
+
+
+ALTER FUNCTION public.run_dispatcher() OWNER TO postgres;
+
+--
+-- Name: ten(text); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION ten(study_uid text) RETURNS text
+    LANGUAGE plpgsql
+    AS $_$declare
+------------------------------------------
+-- Purpose: Siemens MR header processor
+-- 	In particular, the Siemens MR Shadow 1029
+--	which contains PulseSeq, PatientWeight, etc
+-- Caller: Dispatcher
+-----------------------------------------
+	func text;
+	status text;
+	result series%ROWTYPE;
+	res2 series_mapped_values%ROWTYPE;
+	value text;
+begin
+	func :='ddw:ten';
+	status :='fail';
+	
+	-- find all series_uid matching exam_uid 
+	-- then Qry the series_mapped_table for 
+	-- "siemens_MR_shadow" and parse out the PulseSeq
+	for result in select * from  series where series.exam_uid = $1 LOOP 
+		for res2 in select * from series_mapped_values where series_mapped_values.series_uid = result.series_uid LOOP
+			-- now parse the tags of interest in series_mapped_values
+			-- where series_uids have the parent exam_uid
+			if res2.std_name = 'siemens_MR_shadow' then
+				-- parse res2.value for CustomerSeq%\\
+				value = substr (res2.value, strpos(res2.value,'Seq%\\') + 4, 20);
+				value = split_part (value, '""', 1);
+				--perform logger (func, value); 
+				--  then update the series_derived values
+				insert into series_mapped_values values (result.series_uid, 'pulse_seq', value, 'text');
+				status :='ok';
+			end if;
+		end LOOP;
+	end LOOP;
+
+	return status;
+end$_$;
+
+
+ALTER FUNCTION public.ten(study_uid text) OWNER TO postgres;
 
 SET default_tablespace = '';
 
@@ -315,7 +363,7 @@ CREATE TABLE acquisition (
     sop_class text NOT NULL,
     exam_uid text NOT NULL,
     series_uid text NOT NULL,
-    event_uid text
+    event_uid text NOT NULL
 );
 
 
@@ -440,7 +488,7 @@ COMMENT ON COLUMN known_scanners.group_id IS 'This is a short hand way to refer 
 --
 
 CREATE VIEW derived_scanner_version AS
-    SELECT derived_view.std_name, derived_view.unit, derived_view.scope, known_scanners.model, known_scanners.group_id FROM derived_view, known_scanners WHERE ((derived_view.version_id)::oid = (known_scanners.version_id)::oid) ORDER BY known_scanners.version_id;
+    SELECT derived_view.std_name, derived_view.unit, derived_view.scope, derived_view.version_id, known_scanners.modality, known_scanners.make, known_scanners.model, known_scanners.vers, known_scanners.group_id FROM derived_view, known_scanners WHERE (derived_view.version_id = known_scanners.version_id) ORDER BY known_scanners.group_id, known_scanners.version_id;
 
 
 ALTER TABLE public.derived_scanner_version OWNER TO postgres;
@@ -642,8 +690,25 @@ ALTER SEQUENCE known_scanners_version_id_seq OWNED BY known_scanners.version_id;
 -- Name: known_scanners_version_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('known_scanners_version_id_seq', 18, true);
+SELECT pg_catalog.setval('known_scanners_version_id_seq', 49, true);
 
+
+SET default_with_oids = false;
+
+--
+-- Name: log; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE log (
+    caller text,
+    message text,
+    "time" timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE public.log OWNER TO postgres;
+
+SET default_with_oids = true;
 
 --
 -- Name: mapped_values; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
@@ -673,7 +738,7 @@ ALTER TABLE public.mapp_view OWNER TO postgres;
 --
 
 CREATE VIEW mapp_scanner_version AS
-    SELECT mapp_view.std_name, mapp_view.unit, mapp_view.scope, mapp_view.dicom_grp_ele, mapp_view.version_id, known_scanners.modality, known_scanners.make, known_scanners.model, known_scanners.vers, known_scanners.group_id FROM mapp_view, known_scanners WHERE ((mapp_view.version_id)::oid = (known_scanners.version_id)::oid) ORDER BY known_scanners.vers;
+    SELECT mapp_view.std_name, mapp_view.unit, mapp_view.scope, mapp_view.dicom_grp_ele, mapp_view.version_id, known_scanners.modality, known_scanners.make, known_scanners.model, known_scanners.vers, known_scanners.group_id FROM mapp_view, known_scanners WHERE ((mapp_view.version_id)::oid = (known_scanners.version_id)::oid) ORDER BY known_scanners.group_id, known_scanners.version_id;
 
 
 ALTER TABLE public.mapp_scanner_version OWNER TO postgres;
@@ -696,56 +761,6 @@ CREATE TABLE patient (
 ALTER TABLE public.patient OWNER TO postgres;
 
 --
--- Name: pga_diagrams; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE TABLE pga_diagrams (
-    diagramname character varying(64) NOT NULL,
-    diagramtables text,
-    diagramlinks text
-);
-
-
-ALTER TABLE public.pga_diagrams OWNER TO postgres;
-
---
--- Name: pga_forms; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE TABLE pga_forms (
-    formname character varying(64) NOT NULL,
-    formsource text
-);
-
-
-ALTER TABLE public.pga_forms OWNER TO postgres;
-
---
--- Name: pga_graphs; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE TABLE pga_graphs (
-    graphname character varying(64) NOT NULL,
-    graphsource text,
-    graphcode text
-);
-
-
-ALTER TABLE public.pga_graphs OWNER TO postgres;
-
---
--- Name: pga_images; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE TABLE pga_images (
-    imagename character varying(64) NOT NULL,
-    imagesource text
-);
-
-
-ALTER TABLE public.pga_images OWNER TO postgres;
-
---
 -- Name: pga_layout; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -758,50 +773,6 @@ CREATE TABLE pga_layout (
 
 
 ALTER TABLE public.pga_layout OWNER TO postgres;
-
---
--- Name: pga_queries; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE TABLE pga_queries (
-    queryname character varying(64) NOT NULL,
-    querytype character(1),
-    querycommand text,
-    querytables text,
-    querylinks text,
-    queryresults text,
-    querycomments text
-);
-
-
-ALTER TABLE public.pga_queries OWNER TO postgres;
-
---
--- Name: pga_reports; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE TABLE pga_reports (
-    reportname character varying(64) NOT NULL,
-    reportsource text,
-    reportbody text,
-    reportprocs text,
-    reportoptions text
-);
-
-
-ALTER TABLE public.pga_reports OWNER TO postgres;
-
---
--- Name: pga_scripts; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE TABLE pga_scripts (
-    scriptname character varying(64) NOT NULL,
-    scriptsource text
-);
-
-
-ALTER TABLE public.pga_scripts OWNER TO postgres;
 
 --
 -- Name: series; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
@@ -817,7 +788,8 @@ CREATE TABLE series (
     series_name text NOT NULL,
     body_part text NOT NULL,
     series_number text NOT NULL,
-    version_id text NOT NULL
+    version_id text NOT NULL,
+    series_time text
 );
 
 
@@ -866,7 +838,7 @@ ALTER TABLE public.series_view OWNER TO postgres;
 -- Name: version_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE known_scanners ALTER COLUMN version_id SET DEFAULT nextval('known_scanners_version_id_seq'::regclass);
+ALTER TABLE ONLY known_scanners ALTER COLUMN version_id SET DEFAULT nextval('known_scanners_version_id_seq'::regclass);
 
 
 --
@@ -907,6 +879,10 @@ COPY alerts (exam_uid, mpi_pat_id, alert_type, closed_status, date_open, date_cl
 
 COPY derived_values (version_id, std_name) FROM stdin;
 24873	instance_exposure
+40	pulse_seq
+42	pulse_seq
+43	pulse_seq
+44	pulse_seq
 \.
 
 
@@ -917,9 +893,9 @@ COPY derived_values (version_id, std_name) FROM stdin;
 COPY dict_alert_types (alert_type, scope, criticality, email_to_address, email_title, email_from_address) FROM stdin;
 over_dose_ct	exam	3	langer.steve@mayo.edu	alert from ddw: over dose ct	dlradtrac@mayo.edu
 over_dose_fluoro	exam	3	langer.steve@mayo.edu	alert from ddq: over dose fluor	dlradtrac@mayo.edu
-unknown_version	exam	2	langer.steve@mayo.edu	alert from ddw: unknown version	dlradtrac@mayo.edu
 over_exam_limit	patient	3	langer.steve@mayo.edu	alert from ddw: over CT limit	dlradtrac@mayo.edu
 no_patient	exam	1	langer.steve@mayo.edu	alert from ddw: no patient	\N
+unknown_version	exam	2	langer.steve@mayo.edu	alert from ddw: unknown version	dlradtrac@mayo.edu
 \.
 
 
@@ -968,6 +944,13 @@ compression_force	N	instance
 coil	text	series
 pulse_seq	text	series
 procedure_code_seq	text	instance
+shutter_shape	text	acquisition
+win_center	text	instance
+win_width	text	instance
+slope	text	instance
+intercept	text	instance
+lut_descrip	text	instance
+siemens_MR_shadow	text	series
 \.
 
 
@@ -1040,6 +1023,11 @@ COPY instance_mapped_values (instance_uid, std_name, value, unit) FROM stdin;
 --
 
 COPY known_scanners (modality, make, model, vers, group_id, version_id) FROM stdin;
+MR	GE	GENESIS_SIGNA	09	1	36
+MR	GE	Signa HDxt	24_LX_MR Software release:HD16.0_V02_1131.a	1	39
+MR	GE	DISCOVERY MR750	23_LX_MR Software release:DV22.0_V02_1122.a	1	41
+MR	Siemens	Verio	syngo MR B17	10	40
+MR	Siemens	Skyra	syngo MR D11	10	42
 MR	GE	SIGNA HDx	14_LX_MR Software release:14.0_M5_0737.f	1	24848
 MR	GE Medical Systems	Signa HDxt	15_LX_MR Software release:15.0_M4_0910.a	1	57370
 CR	Fuji	5000	A18	3	25275
@@ -1047,6 +1035,9 @@ CR	Fuji	5501ES	A07	3	25436
 DR	GE	"Thunder Platform"	DM_Platform_Magic_Release_Patch_1-4.3-2	4	25411
 MG	Lorad	Lorad Selenia	AWS:MAMMODROC_3_4_1_8_PXCM:1.4.0.7_ARR:1.7.3.10	6	25617
 CT	Siemens	Sensation 64	syngo CT 2007S	2	25236
+MR	Siemens	Espree	syngo MR B17	10	43
+MR	Siemens	Avanto	syngo MR B17	10	44
+MR	GE	DISCOVERY MR450	23_LX_MR Software release:DV22.0_V02_1122.a	1	45
 CR	Philips	PCR Eleva	1.2.1_PMS1.1.1 XRG GXRIM4.0	5	25314
 CT	Siemens	Sensation 16	syngo CT 2007S	2	41120
 CT	Siemens	SOMATOM Definition AS+ syngo CT	syngo CT 2011A.1.04_P02	2	24873
@@ -1054,6 +1045,26 @@ CR	Philips	PCR Eleva	PCR_Eleva_R1.1.5_PMS1.1 XRG GXRIM2.0	5	13
 CR	Philips	PCR Eleva	PCR_Eleva_R1.1.1_PMS1.1 XRG GXRIM2.0	5	14
 CR 	Philips	digital DIAGNOST	Version 1.5.3.1	6	15
 MR 	GE	SIGNA HDx	14_LX_MR Software release:14.0_M5A_0828.b	1	18
+RF	Siemens	Siremobil	3VC02C0	7	20
+XA	Siemens 	POLYTRON-TOP	H01C	8	21
+CT	Siemens 	Sensation 64	syngo CT 2009E	2	23
+MR	GE	Optima MR450w	23_LX_MR Software release:DV22.1_V01_1131.a	1	46
+MR	GE	GENESIS_HISPEED_RP	05	1	48
+MR	GE	GENESIS_SIGNA	04	1	49
+MR	GE	Signa HDxt	24_LX_MR Software release:HD16.0_V01_1108.b	1	25
+MR	GE	DISCOVERY MR750	21_LX_MR Software release:20.1_IB2_1020.a	1	26
+CT	Siemens	SOMATOM Definition Flash	syngo CT 2011A	2	28
+CR	KODAK	DRX-EVOLUTION	5.3.409.4	9	29
+CR	FUJIFILM Corporation	XU-D1	A07	3	30
+CR	FUJI PHOTO FILM Co., ltd.	5501	A06-02	3	35
+\.
+
+
+--
+-- Data for Name: log; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY log (caller, message, "time") FROM stdin;
 \.
 
 
@@ -1163,6 +1174,55 @@ inversion_time	tag00180082	18
 acquisition_type	tag00180023	18
 coil	tag00181250	18
 pulse_seq	tag0019109C	18
+primary_angle	tag00181510	21
+secondary_angle	tag00181511	21
+shutter_shape	tag00181600	21
+coil	tag00181250	25
+pulse_seq	tag0019109C	25
+coil	tag00181250	26
+pulse_seq	tag0019109C	26
+photometric_interp	tag00280004	29
+coil	tag00181250	36
+win_width	tag00281051	29
+win_center	tag00281050	29
+intercept	tag00281052	29
+slope	tag00281053	29
+lut_descrip	tag00283010	29
+view_position	tag00185101	30
+sensitivity	tag00186000	30
+relative_exposure	tag00181405	30
+photometric_interp	tag00280004	30
+win_center	tag00281050	30
+win_width	tag00281051	30
+intercept	tag00281052	30
+slope	tag00281053	30
+lut_descrip	tag00283010	30
+view_position	tag00185101	35
+sensitivity	tag00186000	35
+relative_exposure	tag00181405	35
+photometric_interpretation	tag00280004	35
+win_center	tag00281050	35
+win_width	tag00281051	35
+intercept	tag00281052	35
+slope	tag00281053	35
+lut_descrip	tag00283010	35
+pulse_seq	tag0019109C	36
+coil	tag00181250	39
+pulse_seq	tag0019109C	39
+coil	tag00181250	41
+pulse_seq	tag0019109C	41
+coil	tag00181250	45
+pulse_seq	tag0019109C	45
+coil	tag00181250	46
+pulse_seq	tag0019109C	46
+coil	tag00181250	48
+pulse_seq	tag0019109C	48
+coil	tag00181250	49
+pulse_seq	tag0019109C	49
+siemens_MR_shadow	tag00291020	40
+siemens_MR_shadow	tag00291020	42
+siemens_MR_shadow	tag00291020	43
+siemens_MR_shadow	tag00291020	44
 \.
 
 
@@ -1171,38 +1231,6 @@ pulse_seq	tag0019109C	18
 --
 
 COPY patient (pat_name, dob, local_pat_id, mpi_pat_id, gender, height, weight) FROM stdin;
-\.
-
-
---
--- Data for Name: pga_diagrams; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY pga_diagrams (diagramname, diagramtables, diagramlinks) FROM stdin;
-\.
-
-
---
--- Data for Name: pga_forms; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY pga_forms (formname, formsource) FROM stdin;
-\.
-
-
---
--- Data for Name: pga_graphs; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY pga_graphs (graphname, graphsource, graphcode) FROM stdin;
-\.
-
-
---
--- Data for Name: pga_images; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY pga_images (imagename, imagesource) FROM stdin;
 \.
 
 
@@ -1219,34 +1247,10 @@ public.instance_mapped_values	4	instance_uid std_name value unit	150 150 150 150
 
 
 --
--- Data for Name: pga_queries; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY pga_queries (queryname, querytype, querycommand, querytables, querylinks, queryresults, querycomments) FROM stdin;
-\.
-
-
---
--- Data for Name: pga_reports; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY pga_reports (reportname, reportsource, reportbody, reportprocs, reportoptions) FROM stdin;
-\.
-
-
---
--- Data for Name: pga_scripts; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY pga_scripts (scriptname, scriptsource) FROM stdin;
-\.
-
-
---
 -- Data for Name: series; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY series (exam_uid, series_uid, station_id, aet, series_description, protocol_name, series_name, body_part, series_number, version_id) FROM stdin;
+COPY series (exam_uid, series_uid, station_id, aet, series_description, protocol_name, series_name, body_part, series_number, version_id, series_time) FROM stdin;
 \.
 
 
@@ -1264,6 +1268,14 @@ COPY series_derived_values (series_uid, std_name, value, unit, algorithm) FROM s
 
 COPY series_mapped_values (series_uid, std_name, value, unit) FROM stdin;
 \.
+
+
+--
+-- Name: acq_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY acquisition
+    ADD CONSTRAINT acq_pkey PRIMARY KEY (event_uid);
 
 
 --
@@ -1299,67 +1311,11 @@ ALTER TABLE ONLY instance
 
 
 --
--- Name: pga_diagrams_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
---
-
-ALTER TABLE ONLY pga_diagrams
-    ADD CONSTRAINT pga_diagrams_pkey PRIMARY KEY (diagramname);
-
-
---
--- Name: pga_forms_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
---
-
-ALTER TABLE ONLY pga_forms
-    ADD CONSTRAINT pga_forms_pkey PRIMARY KEY (formname);
-
-
---
--- Name: pga_graphs_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
---
-
-ALTER TABLE ONLY pga_graphs
-    ADD CONSTRAINT pga_graphs_pkey PRIMARY KEY (graphname);
-
-
---
--- Name: pga_images_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
---
-
-ALTER TABLE ONLY pga_images
-    ADD CONSTRAINT pga_images_pkey PRIMARY KEY (imagename);
-
-
---
 -- Name: pga_layout_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY pga_layout
     ADD CONSTRAINT pga_layout_pkey PRIMARY KEY (tablename);
-
-
---
--- Name: pga_queries_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
---
-
-ALTER TABLE ONLY pga_queries
-    ADD CONSTRAINT pga_queries_pkey PRIMARY KEY (queryname);
-
-
---
--- Name: pga_reports_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
---
-
-ALTER TABLE ONLY pga_reports
-    ADD CONSTRAINT pga_reports_pkey PRIMARY KEY (reportname);
-
-
---
--- Name: pga_scripts_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
---
-
-ALTER TABLE ONLY pga_scripts
-    ADD CONSTRAINT pga_scripts_pkey PRIMARY KEY (scriptname);
 
 
 --
@@ -1433,12 +1389,21 @@ CREATE INDEX series_exam_uid_idx ON series USING btree (exam_uid);
 
 CREATE INDEX series_index ON instance USING btree (series_uid);
 
+ALTER TABLE instance CLUSTER ON series_index;
+
 
 --
 -- Name: series_mapped_values_series_uid_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE INDEX series_mapped_values_series_uid_idx ON series_mapped_values USING btree (series_uid);
+
+
+--
+-- Name: run_dispatcher; Type: TRIGGER; Schema: public; Owner: postgres
+--
+
+CREATE TRIGGER run_dispatcher AFTER INSERT OR UPDATE ON patient FOR EACH ROW EXECUTE PROCEDURE run_dispatcher();
 
 
 --
