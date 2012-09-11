@@ -9,15 +9,15 @@ SET check_function_bodies = false;
 SET client_min_messages = warning;
 
 --
--- Name: t-ddw; Type: DATABASE; Schema: -; Owner: postgres
+-- Name: ddw; Type: DATABASE; Schema: -; Owner: postgres
 --
 
-CREATE DATABASE "t-ddw" WITH TEMPLATE = template0 ENCODING = 'UTF8' LC_COLLATE = 'English_United States.1252' LC_CTYPE = 'English_United States.1252';
+CREATE DATABASE ddw WITH TEMPLATE = template0 ENCODING = 'UTF8' LC_COLLATE = 'English_United States.1252' LC_CTYPE = 'English_United States.1252';
 
 
-ALTER DATABASE "t-ddw" OWNER TO postgres;
+ALTER DATABASE ddw OWNER TO postgres;
 
-\connect "t-ddw"
+\connect ddw
 
 SET statement_timeout = 0;
 SET client_encoding = 'UTF8';
@@ -26,10 +26,10 @@ SET check_function_bodies = false;
 SET client_min_messages = warning;
 
 --
--- Name: t-ddw; Type: COMMENT; Schema: -; Owner: postgres
+-- Name: ddw; Type: COMMENT; Schema: -; Owner: postgres
 --
 
-COMMENT ON DATABASE "t-ddw" IS 'DICOM Data Warehouse
+COMMENT ON DATABASE ddw IS 'DICOM Data Warehouse
 
 Steve Langer 2011
 
@@ -81,7 +81,7 @@ CREATE FUNCTION dispatcher(OUT status text) RETURNS text
 BEGIN
 	func :='ddw:dispatcher';
 	-- clear log for each run
-	--delete from log *;
+	delete from log *;
 	
 	for result in select * from exams_to_process LOOP
 		if current_date - cast(result.last_touched as date) > 0 then 
@@ -93,6 +93,7 @@ BEGIN
 			-- Now we know what algorithm to invoke, pass it the study_uid
 			if gid = 1 then
 				-- GE MR
+				perform logger (func, 'in GE MR');
 				SELECT into status one(result.exam_uid);
 			elseif gid = 2 then
 				-- Siemens CT
@@ -108,7 +109,10 @@ BEGIN
 				--Select into status five(result.exam_uid);
 			elseif gid = 10 then
 				-- Siemens MR
+				perform logger (func, 'in Siemens MR');
 				Select into status ten(result.exam_uid);
+			else
+				perform logger (func, 'unknown GID');
 			end if;
 
 			-- check here if status is OK
@@ -120,7 +124,7 @@ BEGIN
 			else
 				-- something must have broke
 				-- should raise an alert
-				perform logger (func, 'in else');
+				perform logger (func, 'failed on '|| result.exam_uid);
 			end if;
 		end if;
 	end LOOP;
@@ -203,13 +207,15 @@ BEGIN
 	-- assume it fails, change later if succeed
 	success := 'false';
 	-- use PERFORM instead of SELECT since we are throwing away the result
-	--PERFORM purger ('', 'test');
-
-	PERFORM purger ('', 'patient');	
-	PERFORM purger ('', 'exam');
-	PERFORM purger ('', 'series');
-	PERFORM purger ('', 'acquisition');
-	PERFORM purger ('', 'instance');
+	PERFORM purger ('', 'test');
+	perform purger ('', 'nuke-it');
+	
+	--perform purger ('', 'alerts');
+	--PERFORM purger ('', 'patient');	
+	--pERFORM purger ('', 'exam');
+	--PERFORM purger ('', 'series');
+	--PERFORM purger ('', 'acquisition');
+	--pERFORM purger ('', 'instance');
 	
 	-- if we got all the way here we succeeded
 	success := 'true';
@@ -240,40 +246,52 @@ begin
 	status := 'error';
 
 	if uid = '' then 
-		template :='*';
+		-- wipe everything in the table
+		template :='%';
 	else
-		-- need to think about this
-		--template :='* where pateint.mrn =' uid;
+		-- surgically clean the table (ie for exams over 1 yr old)
+		template :=uid;
 	end if;
 
 	if scope = 'patient' then
-		DELETE FROM patient template ;
+		DELETE FROM patient * where patient.mpi_pat_id LIKE template ;
+		status := 'ok';
+	elseif scope = 'alerts' then
+		DELETE FROM alerts * where alerts.exam_uid LIKE  template;
+		DELETE FROM exams_to_process * where exams_to_process.exam_uid LIKE  template ;
 		status := 'ok';
 	elseif scope = 'exam' then
-		DELETE FROM exams_derived_values template ;
-		DELETE FROM exams_mapped_values template ;
-		DELETE FROM exams template ;
-		DELETE FROM alerts template ;
-		DELETE FROM exams_to_process template ;
+		DELETE FROM exams_derived_values * where exams_derived_values.exam_uid LIKE  template ;
+		DELETE FROM exams_mapped_values * where exams_mapped_values.exam_uid LIKE  template ;
+		DELETE FROM exams * where exams.exam_uid LIKE template  ;
 		status := 'ok';
 	elseif scope = 'series' then
-		DELETE FROM series_derived_values template ;
-		DELETE FROM series_mapped_values template ;
-		DELETE FROM series template ;
+		DELETE FROM series_derived_values * where series_derived_values.series_uid LIKE template ;
+		DELETE FROM series_mapped_values * where series_mapped_values.series_uid LIKE template ;
+		DELETE FROM series * where series.series_uid LIKE template  ;
 		status := 'ok';
 	elseif scope = 'acquisition' then
-		DELETE FROM acquisition_derived_values template ;
-		DELETE FROM acquisition_mapped_values template ;
-		DELETE FROM acquisition template ;
+		DELETE FROM acquisition_derived_values * where acquisition_derived_values.event_uid LIKE template ;
+		DELETE FROM acquisition_mapped_values * where acquisition_mapped_values.event_uid LIKE template  ;
+		DELETE FROM acquisition * where acquisition.event_uid LIKE template  ;
 		status := 'ok';
 	elseif scope = 'instance' then
-		DELETE FROM instance_derived_values template ;
-		DELETE FROM instance_binary_object template ; 
-		DELETE FROM instance_mapped_values template ;
-		DELETE FROM instance template ;
+		DELETE FROM instance_derived_values * where instance_derived_values.instance_uid LIKE template ;
+		DELETE FROM instance_binary_object  * where instance_binary_object.instance_uid LIKE template ; 
+		DELETE FROM instance_mapped_values  * where instance_mapped_values.instance_uid LIKE template ;
+		DELETE FROM instance  * where instance.instance_uid LIKE template;
 		status := 'ok';
 	elseif scope = 'test' then
 		perform logger (func, 'test');
+		status := 'ok';
+	elseif scope = 'nuke-it' then
+		-- destroy all PHI\
+		truncate patient ;
+		truncate alerts, exams_to_process ;
+		truncate exams_derived_values, exams_mapped_values, exams ;
+		truncate series_derived_values, series_mapped_values, series ;
+		truncate acquisition_derived_values, acquisition_mapped_values, acquisition; 
+		truncate instance_derived_values, instance_mapped_values, instance ;
 		status := 'ok';
 	end if;
 
@@ -323,6 +341,7 @@ CREATE FUNCTION ten(study_uid text) RETURNS text
 begin
 	func :='ddw:ten';
 	status :='fail';
+	--perform logger (func, 'entering 10. examUID = ' || $1);
 	
 	-- find all series_uid matching exam_uid 
 	-- then Qry the series_mapped_table for 
@@ -339,6 +358,8 @@ begin
 				--  then update the series_derived values
 				insert into series_mapped_values values (result.series_uid, 'pulse_seq', value, 'text');
 				status :='ok';
+			else
+				perform logger (func, 'std name = ' || res2.std_name); 
 			end if;
 		end LOOP;
 	end LOOP;
@@ -413,7 +434,7 @@ ALTER TABLE public.acquisition_view OWNER TO postgres;
 --
 
 CREATE TABLE alerts (
-    exam_uid text,
+    exam_uid text NOT NULL,
     mpi_pat_id text,
     alert_type text NOT NULL,
     closed_status boolean DEFAULT false NOT NULL,
@@ -895,7 +916,7 @@ over_dose_ct	exam	3	langer.steve@mayo.edu	alert from ddw: over dose ct	dlradtrac
 over_dose_fluoro	exam	3	langer.steve@mayo.edu	alert from ddq: over dose fluor	dlradtrac@mayo.edu
 over_exam_limit	patient	3	langer.steve@mayo.edu	alert from ddw: over CT limit	dlradtrac@mayo.edu
 no_patient	exam	1	langer.steve@mayo.edu	alert from ddw: no patient	\N
-unknown_version	exam	2	langer.steve@mayo.edu	alert from ddw: unknown version	dlradtrac@mayo.edu
+unknown_version	exam	3	langer.steve@mayo.edu	alert from ddw: unknown version	dlradtrac@mayo.edu
 \.
 
 
@@ -1065,6 +1086,7 @@ CR	FUJI PHOTO FILM Co., ltd.	5501	A06-02	3	35
 --
 
 COPY log (caller, message, "time") FROM stdin;
+ddw:purger	test	2012-09-11 13:48:24.438-05
 \.
 
 
@@ -1279,14 +1301,6 @@ ALTER TABLE ONLY acquisition
 
 
 --
--- Name: exams_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
---
-
-ALTER TABLE ONLY exams
-    ADD CONSTRAINT exams_pkey PRIMARY KEY (exam_uid);
-
-
---
 -- Name: exams_to_process_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -1319,19 +1333,35 @@ ALTER TABLE ONLY pga_layout
 
 
 --
--- Name: xpatient_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: pkey_examUID; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY alerts
+    ADD CONSTRAINT "pkey_examUID" PRIMARY KEY (exam_uid);
+
+
+--
+-- Name: pkey_examuid; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY exams
+    ADD CONSTRAINT pkey_examuid PRIMARY KEY (exam_uid);
+
+
+--
+-- Name: pkey_mpi; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY patient
-    ADD CONSTRAINT xpatient_pkey PRIMARY KEY (mpi_pat_id);
+    ADD CONSTRAINT pkey_mpi PRIMARY KEY (mpi_pat_id);
 
 
 --
--- Name: xseries_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: pkey_seriesuid; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY series
-    ADD CONSTRAINT xseries_pkey PRIMARY KEY (series_uid);
+    ADD CONSTRAINT pkey_seriesuid PRIMARY KEY (series_uid);
 
 
 --
