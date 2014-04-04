@@ -1,33 +1,32 @@
-This project contains 6 files:
+This project contains 9 files:
 a) this README
 b) 2 sh scripts to load and dump dbases from postgresQL
 c) ddw-purged.sql (builds the DICOM Datawarehouse dbase)
 d) mirth_ddw.xml (MIRTH channel to gather/parse DICOM info into the dbase)
 e) ddw-schema.bmp (a relationship diagram of the ddw schema)
+f) 3 Javascript files (to be loaded as Code templates in Mirth)
 
 Installation:
-To use this sware, the user must independantly install MIRTH Connect (> V2.x, requires Java JRE 1.6 or newer), postgreSQL (>V9.x), and pgAdmin. Then:
+To use this sware, the user must independently install MIRTH Connect (> V2.x, requires Java JRE 1.6 or newer), postgreSQL (>V9.x), and pgAdmin. Then:
 
 a) for MIRTH, open the MIRTH admin tool and import the channel
 b) for postgresql 
-	i) during install set the account/password to be postgres/postgres
+	i) during install set the account/password to be postgresql/postgresql
 	ii) open the pgAdmin tool and create the stub for the "ddw"
-	dbase, owner "postgres". Then from the command line run the load 
+	dbase, owner "postgresql". Then from the command line run the load 
 	script
 c) On MS-Windows, make two folders
 	i) d:\avail (the folder mirth uses as a Source)
 	ii) c:\error_images (folder where logs will be written)
 
 Usage Notes:
-a) out of the box, MIRTH uses it's own local "Derby" dbase. This fills quickly. You will be better off having MIRTH use postgres. Make a stub dbase in postgres called MIRTH, owner "postgres". Then go to the MIRTH Server Manager/Database, and fill out.
-
-b)The processing "pipeline" is to drop a DICOM file into the folder d:\avail. MIRTH then processes this file and forwards the data to postrgres. This is a useful way to build the custom mapping for new/unknown scanner versions
-
-c) When you have defined the new scanner mapping, you will want to have a DICOM reciever on the system so that whole exams can be sent and processed. The easiest way to do this is to get RSNA CTP and configure a pipeline with a DICOM import service and a file folder output service. 
+a) out of the box, MIRTH uses it's own local "Derby" dbase. This fills quickly. You will be better off having MIRTH use postgresql. Make a stub dbase in postgresql called MIRTHdb, owner "postgresql". Then go to the MIRTH Server Manager/Database, and fill out.
+b)The processing "pipeline" is to drop a DICOM file into the folder "/media/dbase/ddw_imgs". MIRTH then processes this file and forwards the data to postgresql. This is a useful way to build the custom mapping for new/unknown scanner versions
+c) When you have defined the new scanner mapping, you will want to have a DICOM receiver on the system so that whole exams can be sent and processed. The easiest way to do this is to get RSNA CTP and configure a pipeline with a DICOM import service and a file folder output service. 
 see http://mircwiki.rsna.org/index.php?title=CTP-The_RSNA_Clinical_Trial_Processor
     
-To test the system, make sure that both MIRTH and postgresql are running. Then drop a DICOM file into the folder d:\avail. You should see 2 new files:
-1) C:\error_images\log.rtf
-2) c:\error_images\transform.rtf
+To test the system, make sure that both MIRTH and postgresql are running. Then drop a DICOM file into the folder defined above. You should see 2 new files:
+1) /media/dbase/error_images/log.rtf
+2) /media/dbase/error_images/transform.rtf
 
 Also, you should see new entries in the Patient, Exam and Series tables in the DDW dbase if the scanner is known. 

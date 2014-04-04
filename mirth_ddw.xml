@@ -1,6 +1,6 @@
 <channel>
   <id>c3dddea8-6555-43bd-b156-a764af3d9767</id>
-  <name>mirth_ddw_6-27</name>
+  <name>ddw_6-27</name>
   <description>DICOM Data Warehouse&#xd;
 &#xd;
 Steve Langer 2011&#xd;
@@ -13,10 +13,10 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
   <enabled>true</enabled>
   <version>2.2.1.5861</version>
   <lastModified>
-    <time>1347374973655</time>
-    <timezone>America/Chicago</timezone>
+    <time>1396634116544</time>
+    <timezone>US/Central</timezone>
   </lastModified>
-  <revision>4</revision>
+  <revision>34</revision>
   <sourceConnector>
     <name>sourceConnector</name>
     <properties>
@@ -28,7 +28,7 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
       <property name="checkFileAge">0</property>
       <property name="fileAge">1000</property>
       <property name="fileFilter">*.*</property>
-      <property name="host">d:/avail</property>
+      <property name="host">/media/dbase/ddw_imgs</property>
       <property name="ignoreDot">0</property>
       <property name="moveToDirectory"></property>
       <property name="moveToErrorDirectory"></property>
@@ -91,12 +91,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00100020&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00100020&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -119,12 +119,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00100030&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00100030&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -203,12 +203,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>RegularExpressions</string>
-              <list/>
-            </entry>
-            <entry>
               <string>Mapping</string>
               <string>msg[&apos;tag00101010&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -231,12 +231,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>RegularExpressions</string>
-              <list/>
-            </entry>
-            <entry>
               <string>Mapping</string>
               <string>msg[&apos;tag00101020&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -259,12 +259,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>RegularExpressions</string>
-              <list/>
-            </entry>
-            <entry>
               <string>Mapping</string>
               <string>msg[&apos;tag00101030&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -287,12 +287,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>RegularExpressions</string>
-              <list/>
-            </entry>
-            <entry>
               <string>Mapping</string>
               <string>msg[&apos;tag001021C0&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -343,12 +343,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>RegularExpressions</string>
-              <list/>
-            </entry>
-            <entry>
               <string>Mapping</string>
               <string>msg[&apos;tag00080070&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -371,12 +371,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>RegularExpressions</string>
-              <list/>
-            </entry>
-            <entry>
               <string>Mapping</string>
               <string>msg[&apos;tag00081090&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -427,12 +427,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>RegularExpressions</string>
-              <list/>
-            </entry>
-            <entry>
               <string>Mapping</string>
               <string>msg[&apos;tag00020016&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -455,12 +455,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>RegularExpressions</string>
-              <list/>
-            </entry>
-            <entry>
               <string>Mapping</string>
               <string>msg[&apos;tag00081010&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -483,12 +483,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>RegularExpressions</string>
-              <list/>
-            </entry>
-            <entry>
               <string>Mapping</string>
               <string>msg[&apos;tag00080050&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -511,12 +511,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>RegularExpressions</string>
-              <list/>
-            </entry>
-            <entry>
               <string>Mapping</string>
               <string>msg[&apos;tag00080020&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -539,12 +539,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>RegularExpressions</string>
-              <list/>
-            </entry>
-            <entry>
               <string>Mapping</string>
               <string>msg[&apos;tag00080030&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -651,12 +651,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>RegularExpressions</string>
-              <list/>
-            </entry>
-            <entry>
               <string>Mapping</string>
               <string>msg[&apos;tag00080090&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -679,12 +679,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>RegularExpressions</string>
-              <list/>
-            </entry>
-            <entry>
               <string>Mapping</string>
               <string>msg[&apos;tag00080080&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -707,12 +707,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>RegularExpressions</string>
-              <list/>
-            </entry>
-            <entry>
               <string>Mapping</string>
               <string>msg[&apos;tag00081070&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -735,12 +735,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>RegularExpressions</string>
-              <list/>
-            </entry>
-            <entry>
               <string>Mapping</string>
               <string>msg[&apos;tag00081060&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -763,12 +763,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>RegularExpressions</string>
-              <list/>
-            </entry>
-            <entry>
               <string>Mapping</string>
               <string>msg[&apos;tag0020000D&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -791,12 +791,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>RegularExpressions</string>
-              <list/>
-            </entry>
-            <entry>
               <string>Mapping</string>
               <string>msg[&apos;tag00080018&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -819,12 +819,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>RegularExpressions</string>
-              <list/>
-            </entry>
-            <entry>
               <string>Mapping</string>
               <string>msg[&apos;tag0020000E&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -847,12 +847,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>RegularExpressions</string>
-              <list/>
-            </entry>
-            <entry>
               <string>Mapping</string>
               <string>msg[&apos;tag00080016&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -875,12 +875,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>RegularExpressions</string>
-              <list/>
-            </entry>
-            <entry>
               <string>Mapping</string>
               <string>msg[&apos;tag00081030&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -903,12 +903,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>RegularExpressions</string>
-              <list/>
-            </entry>
-            <entry>
               <string>Mapping</string>
               <string>msg[&apos;tag0008103E&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -931,12 +931,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>RegularExpressions</string>
-              <list/>
-            </entry>
-            <entry>
               <string>Mapping</string>
               <string>msg[&apos;tag00200010&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -959,12 +959,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>RegularExpressions</string>
-              <list/>
-            </entry>
-            <entry>
               <string>Mapping</string>
               <string>msg[&apos;tag00200011&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -1043,12 +1043,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>RegularExpressions</string>
-              <list/>
-            </entry>
-            <entry>
               <string>Mapping</string>
               <string>msg[&apos;tag00181030&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -1086,62 +1086,6 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
         </step>
         <step>
           <sequenceNumber>37</sequenceNumber>
-          <name>imageAndFluoroscopyAreaDoseProduct</name>
-          <script>var mapping;try { mapping = msg[&apos;tag0018115E&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;imageAndFluoroscopyAreaDoseProduct&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
-          <type>Mapper</type>
-          <data class="map">
-            <entry>
-              <string>Variable</string>
-              <string>imageAndFluoroscopyAreaDoseProduct</string>
-            </entry>
-            <entry>
-              <string>DefaultValue</string>
-              <string></string>
-            </entry>
-            <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag0018115E&apos;].toString()</string>
-            </entry>
-            <entry>
-              <string>RegularExpressions</string>
-              <list/>
-            </entry>
-            <entry>
-              <string>isGlobal</string>
-              <string>channel</string>
-            </entry>
-          </data>
-        </step>
-        <step>
-          <sequenceNumber>38</sequenceNumber>
-          <name>relativeXrayExposure</name>
-          <script>var mapping;try { mapping = msg[&apos;tag00181405&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;relativeXrayExposure&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
-          <type>Mapper</type>
-          <data class="map">
-            <entry>
-              <string>Variable</string>
-              <string>relativeXrayExposure</string>
-            </entry>
-            <entry>
-              <string>DefaultValue</string>
-              <string></string>
-            </entry>
-            <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00181405&apos;].toString()</string>
-            </entry>
-            <entry>
-              <string>RegularExpressions</string>
-              <list/>
-            </entry>
-            <entry>
-              <string>isGlobal</string>
-              <string>channel</string>
-            </entry>
-          </data>
-        </step>
-        <step>
-          <sequenceNumber>39</sequenceNumber>
           <name>viewPosition</name>
           <script>var mapping;try { mapping = msg[&apos;tag00185101&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;viewPosition&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
           <type>Mapper</type>
@@ -1155,36 +1099,8 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>RegularExpressions</string>
-              <list/>
-            </entry>
-            <entry>
               <string>Mapping</string>
               <string>msg[&apos;tag00185101&apos;].toString()</string>
-            </entry>
-            <entry>
-              <string>isGlobal</string>
-              <string>channel</string>
-            </entry>
-          </data>
-        </step>
-        <step>
-          <sequenceNumber>40</sequenceNumber>
-          <name>filterMaterial</name>
-          <script>var mapping;try { mapping = msg[&apos;tag00187050&apos;].toString(); }catch (e) { logger.error(e);  mapping = &apos;&apos;;}channelMap.put(&apos;filterMaterial&apos;, validate( mapping , &apos;&apos;, new Array()));</script>
-          <type>Mapper</type>
-          <data class="map">
-            <entry>
-              <string>Variable</string>
-              <string>filterMaterial</string>
-            </entry>
-            <entry>
-              <string>DefaultValue</string>
-              <string></string>
-            </entry>
-            <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00187050&apos;].toString()</string>
             </entry>
             <entry>
               <string>RegularExpressions</string>
@@ -1235,11 +1151,28 @@ try {
     var msg = new XML(messageObject.getTransformedData().toString());
 	var updatePatient, updateExam, updateSeries, updateAcq, updateInstance, updateAlert ;
 	var parmPatient, parmExam, parmSeries, parmAcq, parmInstance, parmAlert ;
-	var checkVersion, checkAlert, chkExamProcess ;
+	var checkVersion, checkAlert, chkExamProcess;
 	var parmVersion,  parmCheckAlert, parmChkExamProcess ;
+	var checkLast, parmLast, updateLast, parmUpdateLast; 
 	var Production = true, Archive = false ;
 
-	buildStrings ();
+	buildStrings ()
+	
+	//Accelerator Section, if activated
+	// this will cause only first object in a series to be indexed
+	if (!Archive) {
+		var Accel= false ;
+		var result = qryExist (checkLast, parmLast);
+		result.next() ;
+		if ($(&apos;seriesInstanceUid&apos;) == result.getString (&apos;series&apos;)) {
+			//logger.info (&apos;in accel not Arh series = &apos; + result.getString (&apos;series&apos;));
+			throw new breakout() ;
+		}
+		//update the last-UIDs table
+		dbaseUpdate (&quot;DELETE FROM last_uids WHERE gateway = ? &quot;, parmLast);
+		result = dbaseUpdate (updateLast, parmUpdateLast);
+		//logger.info(&quot;updated last_uid&quot;);
+	}
 
 	// Bail if patient info is null
 	if ( $(&apos;patientId&apos;) == &apos;&apos; || $(&apos;patientsName&apos;) == &apos;&apos;) {
@@ -1250,7 +1183,7 @@ try {
 	// check if this scanner Version is known
 	var result = qryExist (checkVersion, parmVersion);
 	if (!result.next()) {
-		var s = &quot;unknown_version&gt; on &quot; + $(&apos;stationName&apos;) + &quot;: &quot; + $(&apos;manufacturersModelName&apos;) + &quot; &quot; + $(&apos;softwareVersions&apos;);
+		var s = &quot;unknown_version&gt; on &quot; + $(&apos;stationName&apos;) + &quot;; &quot; + $(&apos;manufacturersModelName&apos;) + &quot;; &quot; + $(&apos;softwareVersions&apos;);
 		throw s ;
 	} else {
 		var versionID = result.getString(&apos;version_id&apos;);
@@ -1286,7 +1219,7 @@ try {
 		parms.add (messageObject.getTransformedData());
 		parms.add (FileUtil.decode(jpegs));
 		dbaseUpdate(&quot;INSERT INTO instance_binary_object (instance_uid, date_of_exam, header, content) VALUES (?, ?, ?, ?)&quot;, parms);
-	} else if (Archive == true) {
+	} else if (Archive == true || Accel == true) {
 		parms = new java.util.ArrayList();
 		parms.add ($(&apos;sopInstanceUid&apos;));
 		parms.add ($(&apos;studyDate&apos;));
@@ -1301,8 +1234,13 @@ try {
 	}
 	result = dbaseUpdate (updateExamProcess, parmExamProcess);
 }
+catch (e if e instanceof breakout) {
+	//logError (&quot;catch breakout&quot;) ;
+	x = 1;
+}
 catch (ee) {
 	var err_str = &quot;Exception in &quot; + func + &quot;\n&quot; + ee ;
+	logger.info (err_str);
 	var alert_type = ee.substring(0, ee.indexOf(&apos;&gt;&apos;)) ;
 	parmCheckAlert.add (alert_type);
 	result = qryExist (checkAlert, parmCheckAlert);
@@ -1325,6 +1263,17 @@ finally {
 	logError (&quot;normal end &quot; + DateUtil.getCurrentDate(&apos;H:m:s&apos;));
 }
 
+	
+function breakout () {
+/////////////////////////////
+// Purpose: stub for exception handling
+// caller: main try
+///////////////////////////////
+	func = &quot;mirth:breakout &quot;;
+
+	return ;
+}
+
 
 function buildStrings () {
 ////////////////////////////////////
@@ -1333,6 +1282,18 @@ function buildStrings () {
 /////////////////////////////////////
 	func = &quot;mirth:buildStrings &quot;;
 
+	// check last UIDs
+	checkLast = &quot;SELECT series from last_uids WHERE gateway ~* ? &quot; ;
+	parmLast = new java.util.ArrayList();
+	parmLast.add(&apos;mcr-dit&apos;) ;
+	
+	updateLast = &quot;INSERT into last_uids (gateway, study, series, instance) VALUES (?, ?, ?, ?)&quot; ;
+	parmUpdateLast = new java.util.ArrayList();
+	parmUpdateLast.add( &apos;mcr-dit&apos;);
+	parmUpdateLast.add( $(&apos;studyInstanceUid&apos;)); 
+	parmUpdateLast.add( $(&apos;seriesInstanceUid&apos;)) ;
+	parmUpdateLast.add( $(&apos;sopInstanceUid&apos;));
+
 	// check version
 	checkVersion = &quot;SELECT version_id FROM known_scanners WHERE model ~* ? AND vers ~* ?&quot; ;
 	parmVersion = new java.util.ArrayList();
@@ -1340,13 +1301,15 @@ function buildStrings () {
 	parmVersion.add($(&apos;softwareVersions&apos;).replace(&apos;\\&apos;,&apos;_&apos;));
 
 	// check-update patient
-	updatePatient = &quot;INSERT INTO patient (pat_name, dob, local_pat_id, mpi_pat_id, gender) VALUES (?,?,?,?,?)&quot;;
+	updatePatient = &quot;INSERT INTO patient (pat_name, dob, local_pat_id, mpi_pat_id, gender, height, weight) VALUES (?,?,?,?,?,?,?)&quot;;
 	parmPatient = new java.util.ArrayList();
 	parmPatient.add ($(&apos;patientsName&apos;));
 	parmPatient.add ($(&apos;patientsBirthDate&apos;));
 	parmPatient.add ($(&apos;patientId&apos;));
 	parmPatient.add ($(&apos;patientId&apos;));
 	parmPatient.add ($(&apos;patientsSex&apos;));
+	parmPatient.add ($(&apos;patientsSize&apos;));
+	parmPatient.add ($(&apos;patientsWeight&apos;));
 
 	// check-update examUID
 	updateExam = &quot;INSERT INTO exams (mpi_pat_id, exam_uid, accession, date_of_exam, time_of_exam, refer_doc, exam_descrip, exam_code, campus, operator, radiologist) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)&quot;;
@@ -1429,7 +1392,11 @@ function dbaseUpdate (str, params) {
 /////////////////////////////////////
 	func= &quot;mirth:dbaseUpdate &quot;;
 
-	//logError (str + params);
+	if (str.indexOf(&apos;exams.mapped&apos;)&gt; -1 ) {
+		//logError (str + params);
+		//logger.info (&apos;--------- &apos; + str + params);
+	}
+
 	try {
 		var loc_result = dbConn.executeUpdate (str, params);
 	}
@@ -1496,17 +1463,29 @@ function mapCustomTags (scope) {
 	while (result.next() ) {
 		parmUpdate.add (uid);
 		parmUpdate.add (result.getString(&apos;std_name&apos;));
+		var string = &apos;&apos; ;
 
-		var string = msg[result.getString(&apos;dicom_grp_ele&apos;)].toString() ;
+		if (result.getString(&apos;std_name&apos;).indexOf(&apos;CT_SR&apos;) &gt; -1 ) {
+			var items = msg[result.getString(&apos;dicom_grp_ele&apos;)][&apos;item&apos;];
+			if (items.length() &gt; 0) {
+				string = items[result.getString(&apos;dicom_grp_ele&apos;)].toString() ;
+				--logger.info(&apos;CT-SR string : &apos; + string);
+			} else {
+				parmUpdate.clear();
+				continue ; 
+			}
+		} else {
+			string = msg[result.getString(&apos;dicom_grp_ele&apos;)].toString() ;
+		}
+
 		if (string.indexOf(&apos;\\&apos;) == 2) { 
 			// if it starts with &apos;xx\&apos; its a Hex string
-			var str2=&quot;&quot; ;
-			str2 = convert_shadowHex_to_ASCII(string);
-			logError (&quot;in Hex &quot; + result.getString(&apos;dicom_grp_ele&apos;));
+			logger.info (&quot;in Hex &quot; + result.getString(&apos;dicom_grp_ele&apos;));
+			var str2 = convert_shadowHex_to_ASCII(string);
 			parmUpdate.add (str2) ;
 		}
 		else {
-			logError (&quot;in else &quot; + result.getString(&apos;dicom_grp_ele&apos;));
+			//logError (&quot;in else &quot; + result.getString(&apos;dicom_grp_ele&apos;));
 			parmUpdate.add (string);		
 		}
 		parmUpdate.add (result.getString(&apos;unit&apos;));
@@ -1547,7 +1526,7 @@ function mapCustomTags (scope) {
         <property name="charsetEncoding">DEFAULT_ENCODING</property>
         <property name="directory"></property>
         <property name="errorOnExists">0</property>
-        <property name="host">c:/error_images</property>
+        <property name="host">/media/dbase/error_images</property>
         <property name="outputAppend">0</property>
         <property name="outputPattern">transformed.rtf</property>
         <property name="passive">1</property>
@@ -1558,7 +1537,6 @@ function mapCustomTags (scope) {
 ${date.get(&apos;yyyy-M-d H.m.s&apos;)}
 ${patientsName}
 ${patientId}
-${implementationVersionName}
 ${sourceApplicationEntityTitle}
 ${message.transformedData}</property>
         <property name="temporary">0</property>
@@ -1603,6 +1581,7 @@ return;</postprocessingScript>
 
 
 return;
+
 </deployScript>
   <shutdownScript>// This script executes once when the channel is undeployed
 // You only have access to the globalMap and globalChannelMap here to persist data
