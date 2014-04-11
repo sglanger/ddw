@@ -13,10 +13,10 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
   <enabled>true</enabled>
   <version>2.2.1.5861</version>
   <lastModified>
-    <time>1396634116544</time>
+    <time>1397216674376</time>
     <timezone>US/Central</timezone>
   </lastModified>
-  <revision>34</revision>
+  <revision>36</revision>
   <sourceConnector>
     <name>sourceConnector</name>
     <properties>
@@ -1469,9 +1469,11 @@ function mapCustomTags (scope) {
 			var items = msg[result.getString(&apos;dicom_grp_ele&apos;)][&apos;item&apos;];
 			if (items.length() &gt; 0) {
 				string = items[result.getString(&apos;dicom_grp_ele&apos;)].toString() ;
-				--logger.info(&apos;CT-SR string : &apos; + string);
+				logger.info(&apos;CT-SR string : &apos; + string);
 			} else {
-				parmUpdate.clear();
+				// if an SR object it will not have most
+				// if any of the other tags we Map so ...
+				//logger.info(&apos;else : &apos; + items);
 				continue ; 
 			}
 		} else {
