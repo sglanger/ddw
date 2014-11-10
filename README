@@ -1,10 +1,11 @@
-This project contains 9 files:
+This project contains 10 files:
 a) this README
 b) 2 sh scripts to load and dump dbases from postgresQL
 c) ddw-purged.sql (builds the DICOM Datawarehouse dbase)
 d) mirth_ddw.xml (MIRTH channel to gather/parse DICOM info into the dbase)
 e) ddw-schema.bmp (a relationship diagram of the ddw schema)
 f) 3 Javascript files (to be loaded as Code templates in Mirth)
+g) the LICENSE file
 
 Installation:
 To use this sware, the user must independently install MIRTH Connect (> V2.x, requires Java JRE 1.6 or newer), postgreSQL (>V9.x), and pgAdmin. Then:
