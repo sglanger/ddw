@@ -13,10 +13,10 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
   <enabled>true</enabled>
   <version>2.2.1.5861</version>
   <lastModified>
-    <time>1397216674376</time>
+    <time>1422027889798</time>
     <timezone>US/Central</timezone>
   </lastModified>
-  <revision>36</revision>
+  <revision>3</revision>
   <sourceConnector>
     <name>sourceConnector</name>
     <properties>
@@ -1142,11 +1142,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
 // Dicom Data Warehouse (DDW)
 // Author: Steve G Langer April 2011
 // Purpose: Mirth Dicom channel for the DDW dbase
-////////////////////////////////////////
+///////////////////////////////////////
 try {
 	var func = &quot;mirth:main &quot;;
 	logError (&quot;\n\n\n start &quot; + func + DateUtil.getCurrentDate(&apos;yyyy-M-d H:m:s&apos;));
-	var dbConn = DatabaseConnectionFactory.createDatabaseConnection(&apos;org.postgresql.Driver&apos;,&apos;jdbc:postgresql://localhost:5432/ddw&apos;,&apos;postgres&apos;,&apos;Radlab2010&apos;);
+	var dbConn = DatabaseConnectionFactory.createDatabaseConnection(&apos;org.postgresql.Driver&apos;,&apos;jdbc:postgresql://localhost:5432/ddw&apos;,&apos;postgres&apos;,&apos;medic4Img&apos;);
+	//logger.info (&apos;1 &apos; + dbConn);
 	//get whole DICOM header, mine them in mapCustomTags()
     var msg = new XML(messageObject.getTransformedData().toString());
 	var updatePatient, updateExam, updateSeries, updateAcq, updateInstance, updateAlert ;
@@ -1165,11 +1166,10 @@ try {
 		var result = qryExist (checkLast, parmLast);
 		result.next() ;
 		if ($(&apos;seriesInstanceUid&apos;) == result.getString (&apos;series&apos;)) {
-			//logger.info (&apos;in accel not Arh series = &apos; + result.getString (&apos;series&apos;));
+			//logger.info (&apos;in breakout, series = &apos; + result.getString (&apos;series&apos;));
 			throw new breakout() ;
 		}
 		//update the last-UIDs table
-		dbaseUpdate (&quot;DELETE FROM last_uids WHERE gateway = ? &quot;, parmLast);
 		result = dbaseUpdate (updateLast, parmUpdateLast);
 		//logger.info(&quot;updated last_uid&quot;);
 	}
@@ -1196,10 +1196,12 @@ try {
 	result = dbaseUpdate (updateExam, parmExam);
 	result = mapCustomTags(&quot;exam&quot;);	
 
+
 	// create Series row -only- if seriesUID is unknown
 	// We could not know versionID at buildStrings()
 	parmSeries.add (versionID );
 	parmSeries.add ($(&apos;seriesTime&apos;));
+	parmSeries.add ($(&apos;modality&apos;));
 	result = dbaseUpdate (updateSeries, parmSeries);
 	result = mapCustomTags(&quot;series&quot;);		
 
@@ -1287,9 +1289,8 @@ function buildStrings () {
 	parmLast = new java.util.ArrayList();
 	parmLast.add(&apos;mcr-dit&apos;) ;
 	
-	updateLast = &quot;INSERT into last_uids (gateway, study, series, instance) VALUES (?, ?, ?, ?)&quot; ;
+	updateLast = &quot;UPDATE last_uids SET study=?, series=?, instance=? where gateway=&apos;mcr-dit&apos; &quot;;
 	parmUpdateLast = new java.util.ArrayList();
-	parmUpdateLast.add( &apos;mcr-dit&apos;);
 	parmUpdateLast.add( $(&apos;studyInstanceUid&apos;)); 
 	parmUpdateLast.add( $(&apos;seriesInstanceUid&apos;)) ;
 	parmUpdateLast.add( $(&apos;sopInstanceUid&apos;));
@@ -1308,8 +1309,8 @@ function buildStrings () {
 	parmPatient.add ($(&apos;patientId&apos;));
 	parmPatient.add ($(&apos;patientId&apos;));
 	parmPatient.add ($(&apos;patientsSex&apos;));
-	parmPatient.add ($(&apos;patientsSize&apos;));
-	parmPatient.add ($(&apos;patientsWeight&apos;));
+	parmPatient.add (parseInt($(&apos;patientsSize&apos;)));
+	parmPatient.add (parseInt($(&apos;patientsWeight&apos;)));
 
 	// check-update examUID
 	updateExam = &quot;INSERT INTO exams (mpi_pat_id, exam_uid, accession, date_of_exam, time_of_exam, refer_doc, exam_descrip, exam_code, campus, operator, radiologist) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)&quot;;
@@ -1327,7 +1328,7 @@ function buildStrings () {
 	parmExam.add ( $(&apos;nameOfPhysiciansReadingStudy&apos;));
 	
 	// check-update seriesUID
-	updateSeries = &quot;INSERT INTO series (exam_uid, series_uid, station_id, aet, series_description, protocol_name, series_name, body_part, series_number, version_id, series_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)&quot;;
+	updateSeries = &quot;INSERT INTO series (exam_uid, series_uid, station_id, aet, series_description, protocol_name, series_name, body_part, series_number, version_id, series_time, modality) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)&quot;;
 	parmSeries = new java.util.ArrayList();
 	parmSeries.add ( $(&apos;studyInstanceUid&apos;));
 	parmSeries.add ($(&apos;seriesInstanceUid&apos;) );
@@ -1391,7 +1392,8 @@ function dbaseUpdate (str, params) {
 // Caller: Main and mapCustomTags
 /////////////////////////////////////
 	func= &quot;mirth:dbaseUpdate &quot;;
-
+	
+	//logger.info (&apos;2 &apos; + dbConn);
 	if (str.indexOf(&apos;exams.mapped&apos;)&gt; -1 ) {
 		//logError (str + params);
 		//logger.info (&apos;--------- &apos; + str + params);
@@ -1402,9 +1404,14 @@ function dbaseUpdate (str, params) {
 	}
 	catch (ee) {
 		// If here,  likely that we violated a UNIQUE constraint
-		logError (func, + &apos;unable to Update table &apos; +loc_result.next);
+		logError (func, + &apos;unable to Update table &apos; + loc_result.next);
+		logger.info (&apos;dbaseUpate fail &apos; + loc_result.next);
 	}
 	finally {
+		if (loc_result != 1) {
+			//logger.info (&apos;dbaseUpdate results &apos; + str + params + &apos; is &apos; + loc_result );
+			//logger.info (loc_result + loc_result.next);
+		}
 		return loc_result;
 	}
 }
@@ -1417,9 +1424,10 @@ function qryExist (str, param) {
 // Caller: Main and mapCustomTags()
 /////////////////////////////////////
 	func = &quot;mirth:qryExist &quot;;
-	
+
 	//logError (str + param);
 	var loc_result = dbConn.executeCachedQuery(str, param);
+	//logger.info (&apos;qryExist result  &apos; + loc_result.next);
 	return loc_result;
 }
 
@@ -1465,14 +1473,13 @@ function mapCustomTags (scope) {
 		parmUpdate.add (result.getString(&apos;std_name&apos;));
 		var string = &apos;&apos; ;
 
-		if (result.getString(&apos;std_name&apos;).indexOf(&apos;CT_SR&apos;) &gt; -1 ) {
+		if (result.getString(&apos;std_name&apos;).indexOf(&apos;dose_SR&apos;) &gt; -1 ) {
 			var items = msg[result.getString(&apos;dicom_grp_ele&apos;)][&apos;item&apos;];
 			if (items.length() &gt; 0) {
 				string = items[result.getString(&apos;dicom_grp_ele&apos;)].toString() ;
 				logger.info(&apos;CT-SR string : &apos; + string);
 			} else {
-				// if an SR object it will not have most
-				// if any of the other tags we Map so ...
+				// SR object won&apos;t have most (if any) of other tags we Map so ...
 				//logger.info(&apos;else : &apos; + items);
 				continue ; 
 			}
@@ -1480,14 +1487,16 @@ function mapCustomTags (scope) {
 			string = msg[result.getString(&apos;dicom_grp_ele&apos;)].toString() ;
 		}
 
-		if (string.indexOf(&apos;\\&apos;) == 2) { 
-			// if it starts with &apos;xx\&apos; its a Hex string
+		if ( (string.indexOf(&apos;\\&apos;) == 2) &amp;&amp; string.indexOf(&apos;-&apos;) &gt; 0) { 
+			// if it starts with &apos;xx\&apos; its a Hex string, but be careful
+			// if it&apos;s Direction Cosines it looks like -1\0\1\0\0
 			logger.info (&quot;in Hex &quot; + result.getString(&apos;dicom_grp_ele&apos;));
 			var str2 = convert_shadowHex_to_ASCII(string);
 			parmUpdate.add (str2) ;
 		}
 		else {
 			//logError (&quot;in else &quot; + result.getString(&apos;dicom_grp_ele&apos;));
+			//logger.info (&quot;in Hex else &quot; + result.getString(&apos;dicom_grp_ele&apos;) + &quot; = &quot; + string);
 			parmUpdate.add (string);		
 		}
 		parmUpdate.add (result.getString(&apos;unit&apos;));
