@@ -64,7 +64,7 @@ CREATE FUNCTION clone_version(src_version text) RETURNS text
 -- Caller: manual
 ---------------------------------
 	func text;
-	group int;
+	grp int;
 	status text ;
 	result known_scanners%ROWTYPE;
 	res2 mapped_values%ROWTYPE;
@@ -77,9 +77,9 @@ begin
 	-- then find all the other group members and
 	-- copy this guy's tag mappings to them
 
-	select into group group_id from known_scanners where known_scanners.version_id = cast (src_version as bigint) ;
-	--perform logger (func, group);
-	for result in select * from known_scanners where group_id = group LOOP
+	select into grp group_id from known_scanners where known_scanners.version_id = cast (src_version as bigint) ;
+	--perform logger (func, grp);
+	for result in select * from known_scanners where group_id = grp LOOP
 		--perform logger (func, result.version_id);
 
 		-- now, we don't want to process the Source version
