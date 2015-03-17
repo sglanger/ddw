@@ -13,10 +13,10 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
   <enabled>true</enabled>
   <version>2.2.1.5861</version>
   <lastModified>
-    <time>1422027889798</time>
+    <time>1426605276307</time>
     <timezone>US/Central</timezone>
   </lastModified>
-  <revision>3</revision>
+  <revision>37</revision>
   <sourceConnector>
     <name>sourceConnector</name>
     <properties>
@@ -1146,23 +1146,32 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
 try {
 	var func = &quot;mirth:main &quot;;
 	logError (&quot;\n\n\n start &quot; + func + DateUtil.getCurrentDate(&apos;yyyy-M-d H:m:s&apos;));
-	var dbConn = DatabaseConnectionFactory.createDatabaseConnection(&apos;org.postgresql.Driver&apos;,&apos;jdbc:postgresql://localhost:5432/ddw&apos;,&apos;postgres&apos;,&apos;medic4Img&apos;);
+	//var dbConn = DatabaseConnectionFactory.createDatabaseConnection(&apos;org.postgresql.Driver&apos;,&apos;jdbc:postgresql://localhost:5432/ddw&apos;,&apos;postgres&apos;,&apos;medic4Img&apos;);
+	var dbConn = DatabaseConnectionFactory.createDatabaseConnection(&apos;org.postgresql.Driver&apos;,&apos;jdbc:postgresql://strider-m.mayo.edu:5432/ddw&apos;,&apos;postgres&apos;,&apos;postgres&apos;);
 	//logger.info (&apos;1 &apos; + dbConn);
 	//get whole DICOM header, mine them in mapCustomTags()
     var msg = new XML(messageObject.getTransformedData().toString());
 	var updatePatient, updateExam, updateSeries, updateAcq, updateInstance, updateAlert ;
 	var parmPatient, parmExam, parmSeries, parmAcq, parmInstance, parmAlert ;
-	var checkVersion, checkAlert, chkExamProcess;
-	var parmVersion,  parmCheckAlert, parmChkExamProcess ;
+	var checkVersion, checkAlert, checkExams; 
+	var parmVersion,  parmCheckAlert, parmCheckExams; 
 	var checkLast, parmLast, updateLast, parmUpdateLast; 
 	var Production = true, Archive = false ;
 
 	buildStrings ()
+
+	// check if this scanner Version is known
+	var result = qryExist (checkVersion, parmVersion);
+	if (!result.next()) {
+		var s = &quot;unknown_version&gt; on &quot; + $(&apos;stationName&apos;) + &quot;; &quot; + $(&apos;manufacturersModelName&apos;) + &quot;; &quot; + $(&apos;softwareVersions&apos;);
+		throw s ;
+	} else {
+		var versionID = result.getString(&apos;version_id&apos;);
+	}
 	
 	//Accelerator Section, if activated
 	// this will cause only first object in a series to be indexed
 	if (!Archive) {
-		var Accel= false ;
 		var result = qryExist (checkLast, parmLast);
 		result.next() ;
 		if ($(&apos;seriesInstanceUid&apos;) == result.getString (&apos;series&apos;)) {
@@ -1180,15 +1189,6 @@ try {
 		throw s;
 	}
 
-	// check if this scanner Version is known
-	var result = qryExist (checkVersion, parmVersion);
-	if (!result.next()) {
-		var s = &quot;unknown_version&gt; on &quot; + $(&apos;stationName&apos;) + &quot;; &quot; + $(&apos;manufacturersModelName&apos;) + &quot;; &quot; + $(&apos;softwareVersions&apos;);
-		throw s ;
-	} else {
-		var versionID = result.getString(&apos;version_id&apos;);
-	}
-
 	// Now create patient -only- if patient is not known
 	result = dbaseUpdate (updatePatient, parmPatient);
 
@@ -1196,12 +1196,11 @@ try {
 	result = dbaseUpdate (updateExam, parmExam);
 	result = mapCustomTags(&quot;exam&quot;);	
 
-
 	// create Series row -only- if seriesUID is unknown
 	// We could not know versionID at buildStrings()
 	parmSeries.add (versionID );
-	parmSeries.add ($(&apos;seriesTime&apos;));
-	parmSeries.add ($(&apos;modality&apos;));
+	parmSeries.add ( $(&apos;seriesTime&apos;) );
+	parmSeries.add ( $(&apos;modality&apos;)  );
 	result = dbaseUpdate (updateSeries, parmSeries);
 	result = mapCustomTags(&quot;series&quot;);		
 
@@ -1221,7 +1220,7 @@ try {
 		parms.add (messageObject.getTransformedData());
 		parms.add (FileUtil.decode(jpegs));
 		dbaseUpdate(&quot;INSERT INTO instance_binary_object (instance_uid, date_of_exam, header, content) VALUES (?, ?, ?, ?)&quot;, parms);
-	} else if (Archive == true || Accel == true) {
+	} else if (Archive ) {
 		parms = new java.util.ArrayList();
 		parms.add ($(&apos;sopInstanceUid&apos;));
 		parms.add ($(&apos;studyDate&apos;));
@@ -1230,10 +1229,6 @@ try {
 	}
 
 	// Last update the Exams_to_Process table
-	result = qryExist (chkExamProcess, parmChkExamProcess);
-	if (result.next()){
-		dbaseUpdate (&quot;DELETE FROM exams_to_process WHERE exam_uid = ? &quot;, parmExamProcess);
-	}
 	result = dbaseUpdate (updateExamProcess, parmExamProcess);
 }
 catch (e if e instanceof breakout) {
@@ -1272,7 +1267,6 @@ function breakout () {
 // caller: main try
 ///////////////////////////////
 	func = &quot;mirth:breakout &quot;;
-
 	return ;
 }
 
@@ -1302,18 +1296,22 @@ function buildStrings () {
 	parmVersion.add($(&apos;softwareVersions&apos;).replace(&apos;\\&apos;,&apos;_&apos;));
 
 	// check-update patient
-	updatePatient = &quot;INSERT INTO patient (pat_name, dob, local_pat_id, mpi_pat_id, gender, height, weight) VALUES (?,?,?,?,?,?,?)&quot;;
+	updatePatient = &quot;INSERT INTO patient (pat_name, dob, local_pat_id, mpi_pat_id, gender) VALUES (?,?,?,?,?)&quot;;
 	parmPatient = new java.util.ArrayList();
-	parmPatient.add ($(&apos;patientsName&apos;));
-	parmPatient.add ($(&apos;patientsBirthDate&apos;));
-	parmPatient.add ($(&apos;patientId&apos;));
-	parmPatient.add ($(&apos;patientId&apos;));
-	parmPatient.add ($(&apos;patientsSex&apos;));
-	parmPatient.add (parseInt($(&apos;patientsSize&apos;)));
-	parmPatient.add (parseInt($(&apos;patientsWeight&apos;)));
+	parmPatient.add ( $(&apos;patientsName&apos;) );
+	parmPatient.add ( $(&apos;patientsBirthDate&apos;) );
+	parmPatient.add ( $(&apos;patientId&apos;) );
+	parmPatient.add ( $(&apos;patientId&apos;) );
+	parmPatient.add ( $(&apos;patientsSex&apos;) );
+	//parmPatient.add (parseInt($(&apos;patientsSize&apos;)));
+	//parmPatient.add (parseInt($(&apos;patientsWeight&apos;)));
 
 	// check-update examUID
-	updateExam = &quot;INSERT INTO exams (mpi_pat_id, exam_uid, accession, date_of_exam, time_of_exam, refer_doc, exam_descrip, exam_code, campus, operator, radiologist) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)&quot;;
+	checkExams = &quot;SELECT accession FROM exams WHERE exam_uid ~* ?&quot;;
+	parmCheckExams  = new java.util.ArrayList();
+	parmCheckExams.add ($(&apos;studyInstanceUid&apos;));
+
+	updateExam = &quot;INSERT INTO exams (mpi_pat_id, exam_uid, accession, date_of_exam, time_of_exam, refer_doc, exam_descrip, exam_code, campus, technologist, radiologist) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)&quot;;
 	parmExam = new java.util.ArrayList();
 	parmExam.add ( $(&apos;patientId&apos;));
 	parmExam.add ($(&apos;studyInstanceUid&apos;));
@@ -1330,11 +1328,11 @@ function buildStrings () {
 	// check-update seriesUID
 	updateSeries = &quot;INSERT INTO series (exam_uid, series_uid, station_id, aet, series_description, protocol_name, series_name, body_part, series_number, version_id, series_time, modality) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)&quot;;
 	parmSeries = new java.util.ArrayList();
-	parmSeries.add ( $(&apos;studyInstanceUid&apos;));
-	parmSeries.add ($(&apos;seriesInstanceUid&apos;) );
+	parmSeries.add ($(&apos;studyInstanceUid&apos;) );
+	parmSeries.add ( $(&apos;seriesInstanceUid&apos;) );
 	parmSeries.add ( $(&apos;stationName&apos;));
 	parmSeries.add ( $(&apos;sourceApplicationEntityTitle&apos;));
-	parmSeries.add ($(&apos;seriesDescription&apos;) );
+	parmSeries.add ( $(&apos;seriesDescription&apos;) );
 	parmSeries.add ( $(&apos;protocolName&apos;));
 	parmSeries.add ( $(&apos;seriesDescription&apos;));
 	parmSeries.add ( $(&apos;bodyPartExamined&apos;));
@@ -1362,13 +1360,11 @@ function buildStrings () {
 	parmInstance.add ( $(&apos;imageType&apos;));
 
 	// check-Update Exam_to_Process
-	chkExamProcess = &quot;SELECT oid FROM exams_to_process WHERE exam_uid ~* ?&quot;;
-	parmChkExamProcess = new java.util.ArrayList();
-	parmChkExamProcess.add ($(&apos;studyInstanceUid&apos;));
-
-	updateExamProcess = &quot;INSERT INTO exams_to_process (exam_uid) VALUES (?)&quot;;
+	updateExamProcess = &quot;INSERT INTO exams_to_process (exam_uid, modality, run_trial) VALUES (?, ?, ?)&quot;;
 	parmExamProcess =  new java.util.ArrayList();
 	parmExamProcess.add ($(&apos;studyInstanceUid&apos;));
+	parmExamProcess.add ($(&apos;modality&apos;));
+	parmExamProcess.add (0);
 	
 	// check-update Alert_types
 	checkAlert = &quot;SELECT * FROM dict_alert_types WHERE alert_type ~* ?&quot;;
@@ -1393,10 +1389,9 @@ function dbaseUpdate (str, params) {
 /////////////////////////////////////
 	func= &quot;mirth:dbaseUpdate &quot;;
 	
-	//logger.info (&apos;2 &apos; + dbConn);
-	if (str.indexOf(&apos;exams.mapped&apos;)&gt; -1 ) {
-		//logError (str + params);
-		//logger.info (&apos;--------- &apos; + str + params);
+	if ($(&apos;modality&apos;) == &apos;CT&apos; &amp;&amp; str.indexOf(&apos;INTO exams &apos;) &gt; -1) {
+		// here over-ride the Exam Insert statement until we find bad data
+		//logger.info (func + &apos; &apos; + &apos;in update override&apos;);
 	}
 
 	try {
@@ -1404,12 +1399,12 @@ function dbaseUpdate (str, params) {
 	}
 	catch (ee) {
 		// If here,  likely that we violated a UNIQUE constraint
-		logError (func, + &apos;unable to Update table &apos; + loc_result.next);
-		logger.info (&apos;dbaseUpate fail &apos; + loc_result.next);
+		logError (func, + &apos;unable to Update table &apos; + loc_result.next() );
+		logger.info (&apos;dbaseUpdate fail &apos; + loc_result.next() );
 	}
 	finally {
-		if (loc_result != 1) {
-			//logger.info (&apos;dbaseUpdate results &apos; + str + params + &apos; is &apos; + loc_result );
+		if (loc_result != 1 &amp;&amp; loc_result != undefined ) {
+			logger.error (&apos;dbaseUpdate results &apos; + str + &apos; &apos; + params + &apos; is &apos; + loc_result );
 			//logger.info (loc_result + loc_result.next);
 		}
 		return loc_result;
@@ -1439,7 +1434,7 @@ function mapCustomTags (scope) {
 //	w/out new Tables/Columns or NoSQL
 // Caller: Exam/Series/Instance update Blocks in main
 /////////////////////////////////////////////
-	func = &quot;mirth:mapCustomTags &quot;;
+	var loc_func = &quot;mirth:mapCustomTags &quot;;
 	var strUpdate, uid ;
 	var parmUpdate = new java.util.ArrayList();
 	var strQry = &quot;SELECT std_name, unit, dicom_grp_ele FROM mapp_view WHERE scope ~* ? AND version_id = ?&quot;;
@@ -1454,7 +1449,7 @@ function mapCustomTags (scope) {
 	} else if (scope == &apos;series&apos;) {
 		//logError (&apos;mapCustom tags series&apos;);
 		strUpdate = &quot;INSERT INTO series_mapped_values (series_uid, std_name, value, unit) VALUES (?, ?, ?, ?)&quot;;
-		uid = $(&apos;seriesInstanceUid&apos;) ;
+		uid =  $(&apos;seriesInstanceUid&apos;) ;
 	} else if (scope == &apos;acquisition&apos;) {
 		strUpdate = &quot;INSERT INTO acquisition_mapped_values (event_uid, std_name, value, unit) VALUES (?, ?, ?, ?)&quot;;
 		uid = $(&apos;&apos;) ;
@@ -1463,30 +1458,31 @@ function mapCustomTags (scope) {
 		uid = $(&apos;sopInstanceUid&apos;) ;
 	}
 
-	// need a View linking stdNames to mappedValues
-	// then Qry the View for the list of custom tags
-	// Loop over the result set, and pluck named tags from
+	// need a View linking stdNames to mappedValues, then Qry the View for the 
+	// list of custom tags. Loop over the result set, and pluck named tags from
 	// -var msg- defined in the try block
 	result = qryExist (strQry, parmQry) ;
 	while (result.next() ) {
 		parmUpdate.add (uid);
-		parmUpdate.add (result.getString(&apos;std_name&apos;));
+		parmUpdate.add (result.getString(&apos;std_name&apos;) );
 		var string = &apos;&apos; ;
 
+		// now get Value to put in String, SR objects are treated special
 		if (result.getString(&apos;std_name&apos;).indexOf(&apos;dose_SR&apos;) &gt; -1 ) {
 			var items = msg[result.getString(&apos;dicom_grp_ele&apos;)][&apos;item&apos;];
 			if (items.length() &gt; 0) {
 				string = items[result.getString(&apos;dicom_grp_ele&apos;)].toString() ;
-				logger.info(&apos;CT-SR string : &apos; + string);
+				logger.info(&apos;CT-SR string 2 : &apos; + string);
 			} else {
-				// SR object won&apos;t have most (if any) of other tags we Map so ...
-				//logger.info(&apos;else : &apos; + items);
-				continue ; 
+				// not a valid dose_SR so ...
+				logger.info(&apos;else1 : &apos; + result.getString(&apos;dicom_grp_ele&apos;).toString() );
+				string = &apos;no_valid_data&apos; ; 
 			}
 		} else {
-			string = msg[result.getString(&apos;dicom_grp_ele&apos;)].toString() ;
+			string =  msg[result.getString(&apos;dicom_grp_ele&apos;)].toString() ;
 		}
 
+		// now have Value string, are there weird characters in it?
 		if ( (string.indexOf(&apos;\\&apos;) == 2) &amp;&amp; string.indexOf(&apos;-&apos;) &gt; 0) { 
 			// if it starts with &apos;xx\&apos; its a Hex string, but be careful
 			// if it&apos;s Direction Cosines it looks like -1\0\1\0\0
@@ -1495,12 +1491,14 @@ function mapCustomTags (scope) {
 			parmUpdate.add (str2) ;
 		}
 		else {
-			//logError (&quot;in else &quot; + result.getString(&apos;dicom_grp_ele&apos;));
 			//logger.info (&quot;in Hex else &quot; + result.getString(&apos;dicom_grp_ele&apos;) + &quot; = &quot; + string);
 			parmUpdate.add (string);		
 		}
-		parmUpdate.add (result.getString(&apos;unit&apos;));
-		dbaseUpdate (strUpdate, parmUpdate);
+		parmUpdate.add ( result.getString(&apos;unit&apos;) );
+		var loc_result = dbaseUpdate (strUpdate, parmUpdate);
+		if (loc_result != 1 &amp;&amp; $(&apos;modality&apos;) == &apos;CT&apos;) {
+			//logger.info (loc_func + &apos; &apos; + strUpdate + parmUpdate);
+		}
 		parmUpdate.clear();
 	}
 }
