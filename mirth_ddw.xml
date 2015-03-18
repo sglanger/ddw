@@ -13,10 +13,10 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
   <enabled>true</enabled>
   <version>2.2.1.5861</version>
   <lastModified>
-    <time>1426605276307</time>
+    <time>1426684995293</time>
     <timezone>US/Central</timezone>
   </lastModified>
-  <revision>37</revision>
+  <revision>81</revision>
   <sourceConnector>
     <name>sourceConnector</name>
     <properties>
@@ -63,12 +63,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00100010&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00100010&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -91,12 +91,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>RegularExpressions</string>
-              <list/>
-            </entry>
-            <entry>
               <string>Mapping</string>
               <string>msg[&apos;tag00100020&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -119,12 +119,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>RegularExpressions</string>
-              <list/>
-            </entry>
-            <entry>
               <string>Mapping</string>
               <string>msg[&apos;tag00100030&apos;].toString()</string>
+            </entry>
+            <entry>
+              <string>RegularExpressions</string>
+              <list/>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -147,12 +147,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00100040&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00100040&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -175,12 +175,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00180015&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00180015&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -203,12 +203,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00101010&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00101010&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -231,12 +231,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00101020&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00101020&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -259,12 +259,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00101030&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00101030&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -287,12 +287,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag001021C0&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag001021C0&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -315,12 +315,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00080060&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00080060&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -343,12 +343,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00080070&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00080070&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -371,12 +371,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00081090&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00081090&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -399,12 +399,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00181020&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00181020&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -427,12 +427,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00020016&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00020016&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -455,12 +455,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00081010&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00081010&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -483,12 +483,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00080050&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00080050&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -511,12 +511,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00080020&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00080020&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -539,12 +539,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00080030&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00080030&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -567,12 +567,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00080031&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00080031&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -595,12 +595,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00080032&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00080032&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -623,12 +623,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00080033&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00080033&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -651,12 +651,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00080090&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00080090&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -679,12 +679,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00080080&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00080080&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -707,12 +707,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00081070&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00081070&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -735,12 +735,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00081060&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00081060&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -763,12 +763,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag0020000D&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag0020000D&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -791,12 +791,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00080018&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00080018&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -819,12 +819,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag0020000E&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag0020000E&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -847,12 +847,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00080016&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00080016&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -875,12 +875,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00081030&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00081030&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -903,12 +903,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag0008103E&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag0008103E&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -931,12 +931,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00200010&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00200010&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -959,12 +959,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00200011&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00200011&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -987,12 +987,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00200012&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00200012&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -1015,12 +1015,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00200013&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00200013&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -1043,12 +1043,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00181030&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00181030&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -1071,12 +1071,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00080008&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00080008&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -1099,12 +1099,12 @@ External Dependencies: This MIRTH channel is meant to work with the DDW.sql post
               <string></string>
             </entry>
             <entry>
-              <string>Mapping</string>
-              <string>msg[&apos;tag00185101&apos;].toString()</string>
-            </entry>
-            <entry>
               <string>RegularExpressions</string>
               <list/>
+            </entry>
+            <entry>
+              <string>Mapping</string>
+              <string>msg[&apos;tag00185101&apos;].toString()</string>
             </entry>
             <entry>
               <string>isGlobal</string>
@@ -1173,14 +1173,15 @@ try {
 	// this will cause only first object in a series to be indexed
 	if (!Archive) {
 		var result = qryExist (checkLast, parmLast);
-		result.next() ;
-		if ($(&apos;seriesInstanceUid&apos;) == result.getString (&apos;series&apos;)) {
-			//logger.info (&apos;in breakout, series = &apos; + result.getString (&apos;series&apos;));
+		if (!result.next() ) {
+			//update the last-UIDs table
+			result = dbaseUpdate (updateLast, parmUpdateLast);
+			logger.info(&apos;updated last_uid &apos; + $(&apos;seriesInstanceUid&apos;)) ;
+		} else {
+			//if ($(&apos;seriesInstanceUid&apos;) == result.getString (&apos;series&apos;)) {
+			//logger.info (&apos;in breakout, series = &apos; + $(&apos;seriesInstanceUid&apos;));
 			throw new breakout() ;
 		}
-		//update the last-UIDs table
-		result = dbaseUpdate (updateLast, parmUpdateLast);
-		//logger.info(&quot;updated last_uid&quot;);
 	}
 
 	// Bail if patient info is null
@@ -1279,10 +1280,11 @@ function buildStrings () {
 	func = &quot;mirth:buildStrings &quot;;
 
 	// check last UIDs
-	checkLast = &quot;SELECT series from last_uids WHERE gateway ~* ? &quot; ;
+	checkLast = &quot;SELECT series from last_uids WHERE gateway ~* ? and series ~* ? &quot; ;
 	parmLast = new java.util.ArrayList();
 	parmLast.add(&apos;mcr-dit&apos;) ;
-	
+	parmLast.add($(&apos;seriesInstanceUid&apos;)) ;
+
 	updateLast = &quot;UPDATE last_uids SET study=?, series=?, instance=? where gateway=&apos;mcr-dit&apos; &quot;;
 	parmUpdateLast = new java.util.ArrayList();
 	parmUpdateLast.add( $(&apos;studyInstanceUid&apos;)); 
@@ -1396,13 +1398,11 @@ function dbaseUpdate (str, params) {
 
 	try {
 		var loc_result = dbConn.executeUpdate (str, params);
-	}
-	catch (ee) {
+	} catch (ee) {
 		// If here,  likely that we violated a UNIQUE constraint
 		logError (func, + &apos;unable to Update table &apos; + loc_result.next() );
 		logger.info (&apos;dbaseUpdate fail &apos; + loc_result.next() );
-	}
-	finally {
+	} finally {
 		if (loc_result != 1 &amp;&amp; loc_result != undefined ) {
 			logger.error (&apos;dbaseUpdate results &apos; + str + &apos; &apos; + params + &apos; is &apos; + loc_result );
 			//logger.info (loc_result + loc_result.next);
@@ -1474,9 +1474,9 @@ function mapCustomTags (scope) {
 				string = items[result.getString(&apos;dicom_grp_ele&apos;)].toString() ;
 				logger.info(&apos;CT-SR string 2 : &apos; + string);
 			} else {
-				// not a valid dose_SR so ...
+				// not a valid dose_SR so jump to next item ...
 				logger.info(&apos;else1 : &apos; + result.getString(&apos;dicom_grp_ele&apos;).toString() );
-				string = &apos;no_valid_data&apos; ; 
+				continue ; 
 			}
 		} else {
 			string =  msg[result.getString(&apos;dicom_grp_ele&apos;)].toString() ;
@@ -1489,16 +1489,12 @@ function mapCustomTags (scope) {
 			logger.info (&quot;in Hex &quot; + result.getString(&apos;dicom_grp_ele&apos;));
 			var str2 = convert_shadowHex_to_ASCII(string);
 			parmUpdate.add (str2) ;
-		}
-		else {
+		} else {
 			//logger.info (&quot;in Hex else &quot; + result.getString(&apos;dicom_grp_ele&apos;) + &quot; = &quot; + string);
 			parmUpdate.add (string);		
 		}
 		parmUpdate.add ( result.getString(&apos;unit&apos;) );
 		var loc_result = dbaseUpdate (strUpdate, parmUpdate);
-		if (loc_result != 1 &amp;&amp; $(&apos;modality&apos;) == &apos;CT&apos;) {
-			//logger.info (loc_func + &apos; &apos; + strUpdate + parmUpdate);
-		}
 		parmUpdate.clear();
 	}
 }
