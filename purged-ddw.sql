@@ -2,30 +2,17 @@
 -- PostgreSQL database dump
 --
 
+SET statement_timeout = 0;
 SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
 
 --
--- Name: ddw; Type: DATABASE; Schema: -; Owner: postgres
+-- Name: purged_ddw; Type: COMMENT; Schema: -; Owner: postgres
 --
 
-CREATE DATABASE ddw WITH TEMPLATE = template0 ENCODING = 'UTF8';
-
-
-ALTER DATABASE ddw OWNER TO postgres;
-
-\connect ddw
-
-SET client_encoding = 'UTF8';
-SET check_function_bodies = false;
-SET client_min_messages = warning;
-
---
--- Name: DATABASE ddw; Type: COMMENT; Schema: -; Owner: 
---
-
-COMMENT ON DATABASE ddw IS 'DICOM Data Warehouse
+COMMENT ON DATABASE purged_ddw IS 'DICOM Data Warehouse
 
 Steve Langer 2011
 
@@ -36,17 +23,17 @@ External Dependencies:
 
 
 --
--- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: postgres
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
 --
 
-COMMENT ON SCHEMA public IS 'Standard public schema';
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
 
 --
--- Name: plpgsql; Type: PROCEDURAL LANGUAGE; Schema: -; Owner: 
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
 --
 
-CREATE PROCEDURAL LANGUAGE plpgsql;
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 
 
 SET search_path = public, pg_catalog;
@@ -56,6 +43,7 @@ SET search_path = public, pg_catalog;
 --
 
 CREATE FUNCTION clone_version(src_version text) RETURNS text
+    LANGUAGE plpgsql
     AS $$declare
 ----------------------------------
 -- Purpose: Make it easy to clone an existing
@@ -121,8 +109,7 @@ begin
 	end loop;
 	return status;
 end
-$$
-    LANGUAGE plpgsql;
+$$;
 
 
 ALTER FUNCTION public.clone_version(src_version text) OWNER TO postgres;
@@ -132,12 +119,13 @@ ALTER FUNCTION public.clone_version(src_version text) OWNER TO postgres;
 --
 
 CREATE FUNCTION dispatcher(OUT status text) RETURNS text
+    LANGUAGE plpgsql
     AS $$DECLARE
 --------------------------------------
--- Purpose: run by Parient table trigger, looks at 
+-- Purpose: run by Patient table trigger, looks at 
 --	table exams_to_process and then
---	a) mapps an exam to an analytic algorithm for processing
---	b) verfies analytic runs
+--	a) maps an exam to an analytic algorithm for processing
+--	b) verifies analytic runs
 --	c) on success removes exam from exams_to_process table
 -- Caller: trigger on Patient table
 ---------------------------------------
@@ -212,8 +200,7 @@ BEGIN
 
 	return ;
 END
-$$
-    LANGUAGE plpgsql;
+$$;
 
 
 ALTER FUNCTION public.dispatcher(OUT status text) OWNER TO postgres;
@@ -223,10 +210,11 @@ ALTER FUNCTION public.dispatcher(OUT status text) OWNER TO postgres;
 --
 
 CREATE FUNCTION eleven(study_uid text) RETURNS text
+    LANGUAGE plpgsql
     AS $$declare
 ------------------------------------------
 -- Purpose: GE PACS header processor
--- 	After succesful run clears entry from
+-- 	After successful run clears entry from
 --	"exams-to-process" table
 -- Caller: Dispatcher
 -----------------------------------------
@@ -238,8 +226,7 @@ begin
 	-- right now this is just a stub to clear the "exams-to-process" table
 	-- and avoid errors in the Log table
 	return status ;
-end;$$
-    LANGUAGE plpgsql;
+end;$$;
 
 
 ALTER FUNCTION public.eleven(study_uid text) OWNER TO postgres;
@@ -249,10 +236,11 @@ ALTER FUNCTION public.eleven(study_uid text) OWNER TO postgres;
 --
 
 CREATE FUNCTION five(study_uid text) RETURNS text
+    LANGUAGE plpgsql
     AS $$declare
 ------------------------------------------
 -- Purpose: Philips CR header processor
--- 	After succesful run clears entry from
+-- 	After successful run clears entry from
 --	"exams-to-process" table
 -- Caller: Dispatcher
 -----------------------------------------
@@ -264,8 +252,7 @@ begin
 	-- right now this is just a stub to clear the "exams-to-process" table
 	-- and avoid errors in the Log table
 	return status ;
-end;$$
-    LANGUAGE plpgsql;
+end;$$;
 
 
 ALTER FUNCTION public.five(study_uid text) OWNER TO postgres;
@@ -275,10 +262,11 @@ ALTER FUNCTION public.five(study_uid text) OWNER TO postgres;
 --
 
 CREATE FUNCTION four(study_uid text) RETURNS text
+    LANGUAGE plpgsql
     AS $$declare
 ------------------------------------------
 -- Purpose: GE DR header processor
--- 	After succesful run clears entry from
+-- 	After successful run clears entry from
 --	"exams-to-process" table
 -- Caller: Dispatcher
 -----------------------------------------
@@ -290,8 +278,7 @@ begin
 	-- right now this is just a stub to clear the "exams-to-process" table
 	-- and avoid errors in the Log table
 	return status ;
-end;$$
-    LANGUAGE plpgsql;
+end;$$;
 
 
 ALTER FUNCTION public.four(study_uid text) OWNER TO postgres;
@@ -301,6 +288,7 @@ ALTER FUNCTION public.four(study_uid text) OWNER TO postgres;
 --
 
 CREATE FUNCTION fourteen(study_uid text) RETURNS text
+    LANGUAGE plpgsql
     AS $_$declare
 ------------------------------------------
 -- Purpose: GE CT header processor
@@ -324,20 +312,13 @@ CREATE FUNCTION fourteen(study_uid text) RETURNS text
 	buf  text;
 	valu text;
 begin
-	-- These arrays are synched. 
+	-- These arrays are synced. 
 	terms[0] := array['dlp'];
 	terms[1] := array['ctdi_vol'];
 	tags[0] :=  array['Product'];
 	tags[1] :=  array['CTDIvol'];
 	-- end at '</tag0040A30A>'
 
-	--check to see if there already is a exam_derived object for this
-	select into valu exams_derived_values.std_name from exams_derived_values where exams_derived_values.exam_uid = $1 ;
-	if char_length(valu) > 0 then
-		status :='ok';
-		return status ;
-	end if;
-	
 	for res2 in select * from exams_mapped_values where exams_mapped_values.exam_uid = $1 LOOP
 		if res2.std_name = 'dose_SR' then
 			-- Loop over the array of intersting SR tags
@@ -366,14 +347,22 @@ begin
 				END;
 				i := i + 1;
 			end loop;
-		else
-			perform logger(func, res2.std_name);
 		end if;
 	end loop;
-	
+
+	if status = 'failed' then
+		-- if this ExamsNMappedValue entry does not have the SR, check How many times we have tried
+		select into i run_trial from exams_to_process where exams_to_process.exam_uid = $1 ;
+		if i < 5 then
+			-- hope the next Exams_Mapped_Entry will have it
+			UPDATE exams_to_process set run_trial = (i + 1) where exams_to_process.exam_uid = $1 ;
+		else	
+			-- but at some point we have to give up, Maybe CT never sent a DOSE-SR to MIDIA/PACS?
+			status :='ok';
+		end if;
+	end if;
 	return status;
-end$_$
-    LANGUAGE plpgsql;
+end$_$;
 
 
 ALTER FUNCTION public.fourteen(study_uid text) OWNER TO postgres;
@@ -383,6 +372,7 @@ ALTER FUNCTION public.fourteen(study_uid text) OWNER TO postgres;
 --
 
 CREATE FUNCTION logger(caller text, message text) RETURNS text
+    LANGUAGE plpgsql
     AS $$declare
 --------------------------------------
 -- Purpose: General purpose logging for debug
@@ -396,8 +386,7 @@ begin
 	insert into log values (caller, message, now()) ;
 	return 'ok';
 end
-$$
-    LANGUAGE plpgsql;
+$$;
 
 
 ALTER FUNCTION public.logger(caller text, message text) OWNER TO postgres;
@@ -407,10 +396,11 @@ ALTER FUNCTION public.logger(caller text, message text) OWNER TO postgres;
 --
 
 CREATE FUNCTION one(study_uid text) RETURNS text
+    LANGUAGE plpgsql
     AS $_$declare
 ------------------------------------------
 -- Purpose: GE MR header processor
--- 	After succesful run clears entry from
+-- 	After successful run clears entry from
 --	"exams-to-process" table
 -- Caller: Dispatcher
 -----------------------------------------
@@ -459,8 +449,7 @@ begin
 	perform logger (func, 'exiting 1. gotTo = ' || gotTo || res2.std_name );
 	return status;
 end
-$_$
-    LANGUAGE plpgsql;
+$_$;
 
 
 ALTER FUNCTION public.one(study_uid text) OWNER TO postgres;
@@ -470,6 +459,7 @@ ALTER FUNCTION public.one(study_uid text) OWNER TO postgres;
 --
 
 CREATE FUNCTION purge_phi(OUT success text) RETURNS text
+    LANGUAGE plpgsql
     AS $$DECLARE
 --------------------------------------
 -- Purpose: purge all PHI
@@ -497,8 +487,7 @@ BEGIN
 	success := 'true';
 	return ;
 END
-$$
-    LANGUAGE plpgsql;
+$$;
 
 
 ALTER FUNCTION public.purge_phi(OUT success text) OWNER TO postgres;
@@ -508,6 +497,7 @@ ALTER FUNCTION public.purge_phi(OUT success text) OWNER TO postgres;
 --
 
 CREATE FUNCTION purger(uid text, scope text) RETURNS text
+    LANGUAGE plpgsql
     AS $_$declare
 ----------------------------------------
 -- Purpose: replace 5 different function with 
@@ -582,8 +572,7 @@ begin
 	--perform logger (func, status);
 	return status;
 end
-$_$
-    LANGUAGE plpgsql;
+$_$;
 
 
 ALTER FUNCTION public.purger(uid text, scope text) OWNER TO postgres;
@@ -592,15 +581,15 @@ ALTER FUNCTION public.purger(uid text, scope text) OWNER TO postgres;
 -- Name: run_dispatcher(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
-CREATE FUNCTION run_dispatcher() RETURNS "trigger"
+CREATE FUNCTION run_dispatcher() RETURNS trigger
+    LANGUAGE plpgsql
     AS $$begin
  -- example
  -- http://www.postgresql.org/docs/8.1/static/plpgsql-trigger.html
   perform dispatcher();
   return NULL;
 end
-$$
-    LANGUAGE plpgsql;
+$$;
 
 
 ALTER FUNCTION public.run_dispatcher() OWNER TO postgres;
@@ -610,6 +599,7 @@ ALTER FUNCTION public.run_dispatcher() OWNER TO postgres;
 --
 
 CREATE FUNCTION str2flt("in" text, exponent text) RETURNS double precision
+    LANGUAGE plpgsql
     AS $_$declare
 ------------------------------------------
 -- Author: SG Langer, March 2014
@@ -683,8 +673,7 @@ begin
 	end loop;
 
 	return sign * sum;
-end$_$
-    LANGUAGE plpgsql;
+end$_$;
 
 
 ALTER FUNCTION public.str2flt("in" text, exponent text) OWNER TO postgres;
@@ -694,13 +683,14 @@ ALTER FUNCTION public.str2flt("in" text, exponent text) OWNER TO postgres;
 --
 
 CREATE FUNCTION str2int(str text, exponent text) RETURNS integer
+    LANGUAGE plpgsql
     AS $_$declare
 ------------------------------------------
 -- Author: SG Langer, March 2014
 -- Purpose: Take any numeric looking string as input
 --	Trim off the float part (if one), then
---	create an int and return. This was necessry 
---	becuase neither Cast nor to_number() in pgSQL work. 
+--	create an int and return. This was necessary 
+--	because neither Cast nor to_number() in pgSQL work. 
 --	Oh, they work when I called them directly like
 --	CAST ('123.45' as int)
 -- 	but failed when I did this
@@ -765,8 +755,7 @@ begin
 	--select into val $1::double precision::numeric ;
 	return sign * sum;
 end
-$_$
-    LANGUAGE plpgsql;
+$_$;
 
 
 ALTER FUNCTION public.str2int(str text, exponent text) OWNER TO postgres;
@@ -776,6 +765,7 @@ ALTER FUNCTION public.str2int(str text, exponent text) OWNER TO postgres;
 --
 
 CREATE FUNCTION ten(study_uid text) RETURNS text
+    LANGUAGE plpgsql
     AS $_$declare
 ------------------------------------------
 -- Purpose: Siemens MR header processor
@@ -823,8 +813,7 @@ begin
 	end LOOP;
 
 	return status;
-end$_$
-    LANGUAGE plpgsql;
+end$_$;
 
 
 ALTER FUNCTION public.ten(study_uid text) OWNER TO postgres;
@@ -834,6 +823,7 @@ ALTER FUNCTION public.ten(study_uid text) OWNER TO postgres;
 --
 
 CREATE FUNCTION thirteen("studyUID" text) RETURNS text
+    LANGUAGE plpgsql
     AS $_$declare
 ------------------------------------------
 -- Purpose: GE  PET-CT header processor
@@ -857,19 +847,12 @@ CREATE FUNCTION thirteen("studyUID" text) RETURNS text
 	buf  text;
 	valu text;
 begin
-	-- These arrays are synched. 
+	-- These arrays are synced. 
 	terms[0] := array['dlp'];
 	terms[1] := array['ctdi_vol'];
 	tags[0] :=  array['Product'];
 	tags[1] :=  array['CTDIvol'];
 	-- end at '</tag0040A30A>'
-	
-	--check to see if there already is a exam_derived object for this
-	select into valu exams_derived_values.std_name from exams_derived_values where exams_derived_values.exam_uid = $1 ;
-	if char_length(valu) > 0 then
-		status :='ok';
-		return status ;
-	end if;
 	
 	for res2 in select * from exams_mapped_values where exams_mapped_values.exam_uid = $1 LOOP
 		if res2.std_name = 'dose_SR' then
@@ -899,14 +882,22 @@ begin
 				END;
 				i := i + 1;
 			end loop;
-		else
-			perform logger(func, res2.std_name);
 		end if;
 	end loop;
 	
+	if status = 'failed' then
+		-- if this ExamsNMappedValue entry does not have the SR, check How many times we have tried
+		select into i run_trial from exams_to_process where exams_to_process.exam_uid = $1 ;
+		if i < 5 then
+			-- hope the next Exams_Mapped_Entry will have it
+			UPDATE exams_to_process set run_trial = (i + 1) where exams_to_process.exam_uid = $1 ;
+		else	
+			-- but at some point we have to give up, Maybe CT never sent a DOSE-SR to MIDIA/PACS?
+			status :='ok';
+		end if;
+	end if;
 	return status;
-end$_$
-    LANGUAGE plpgsql;
+end$_$;
 
 
 ALTER FUNCTION public.thirteen("studyUID" text) OWNER TO postgres;
@@ -916,10 +907,11 @@ ALTER FUNCTION public.thirteen("studyUID" text) OWNER TO postgres;
 --
 
 CREATE FUNCTION three(study_uid text) RETURNS text
+    LANGUAGE plpgsql
     AS $$declare
 ------------------------------------------
 -- Purpose: Fuji CR header processor
--- 	After succesful run clears entry from
+-- 	After successful run clears entry from
 --	"exams-to-process" table
 -- Caller: Dispatcher
 -----------------------------------------
@@ -931,8 +923,7 @@ begin
 	-- right now this is just a stub to clear the "exams-to-process" table
 	-- and avoid errors in the Log table
 	return status ;
-end;$$
-    LANGUAGE plpgsql;
+end;$$;
 
 
 ALTER FUNCTION public.three(study_uid text) OWNER TO postgres;
@@ -941,12 +932,12 @@ ALTER FUNCTION public.three(study_uid text) OWNER TO postgres;
 -- Name: trunc_last_uid(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
-CREATE FUNCTION trunc_last_uid() RETURNS "trigger"
+CREATE FUNCTION trunc_last_uid() RETURNS trigger
+    LANGUAGE plpgsql
     AS $$begin
   PERFORM purger ('', 'trunc-uid');
   return null;
-end;$$
-    LANGUAGE plpgsql;
+end;$$;
 
 
 ALTER FUNCTION public.trunc_last_uid() OWNER TO postgres;
@@ -956,10 +947,11 @@ ALTER FUNCTION public.trunc_last_uid() OWNER TO postgres;
 --
 
 CREATE FUNCTION twelve(study_uid text) RETURNS text
+    LANGUAGE plpgsql
     AS $$declare
 ------------------------------------------
 -- Purpose: Carestream DR header processor
--- 	After succesful run clears entry from
+-- 	After successful run clears entry from
 --	"exams-to-process" table
 -- Caller: Dispatcher
 -----------------------------------------
@@ -971,8 +963,7 @@ begin
 	-- right now this is just a stub to clear the "exams-to-process" table
 	-- and avoid errors in the Log table
 	return status ;
-end;$$
-    LANGUAGE plpgsql;
+end;$$;
 
 
 ALTER FUNCTION public.twelve(study_uid text) OWNER TO postgres;
@@ -982,6 +973,7 @@ ALTER FUNCTION public.twelve(study_uid text) OWNER TO postgres;
 --
 
 CREATE FUNCTION two(study_uid text) RETURNS text
+    LANGUAGE plpgsql
     AS $_$declare
 ------------------------------------------
 -- Purpose: Siemens CT header processor
@@ -1004,25 +996,23 @@ CREATE FUNCTION two(study_uid text) RETURNS text
 	term text;
 	buf  text;
 	valu text;
+		gotTo int;
 begin
-	-- These arrays are synched. 
+	-- These arrays are synched. Terms are from dict_std_names
+	-- tags are from vendor SR object
 	terms[0] := array['dlp'];
 	terms[1] := array['ctdi_vol'];
 	tags[0] :=  array['Product'];
 	tags[1] :=  array['CTDIvol'];
 	-- end at '</tag0040A30A>'
-
-	--check to see if there already is a exam_derived object for this
-	select into valu exams_derived_values.std_name from exams_derived_values where exams_derived_values.exam_uid = $1 ;
-	if char_length(valu) > 0 then
-		status :='ok';
-		return status ;
-	end if;
-	
+	gotTo :=1;
+		
 	for res2 in select * from exams_mapped_values where exams_mapped_values.exam_uid = $1 LOOP
+		gotTo :=3;
 		if res2.std_name = 'dose_SR' then
 			-- Loop over the array of intersting SR tags
 			i := 0;
+			gotTo :=4;
 			while (i < 2 ) loop
 				buf := res2.value ;
 				val := 0;
@@ -1047,16 +1037,23 @@ begin
 				END;
 				i := i + 1;
 			end loop;
-		else
-			perform logger(func, res2.std_name);
-			-- do not want to clear entry from ExamsToProcess until the SR is processed
-			status :='failed';
 		end if;
 	end loop;
-	
+
+	if status = 'failed' then
+		-- if this ExamsNMappedValue entry does not have the SR, check How many times we have tried
+		select into i run_trial from exams_to_process where exams_to_process.exam_uid = $1 ;
+		if i < 5 then
+			-- hope the next Exams_Mapped_Entry will have it
+			UPDATE exams_to_process set run_trial = (i + 1) where exams_to_process.exam_uid = $1 ;
+		else	
+			-- but at some point we have to give up, Maybe CT never sent a DOSE-SR to MIDIA/PACS?
+			status :='ok';
+		end if;
+	end if;
+	--perform logger (func, 'exiting. gotTo =  ' || gotTo);
 	return status ;
-end $_$
-    LANGUAGE plpgsql;
+end $_$;
 
 
 ALTER FUNCTION public.two(study_uid text) OWNER TO postgres;
@@ -1177,9 +1174,10 @@ ALTER TABLE public.derived_view OWNER TO postgres;
 --
 
 CREATE SEQUENCE known_scanners_version_id_seq
+    START WITH 1
     INCREMENT BY 1
-    NO MAXVALUE
     NO MINVALUE
+    NO MAXVALUE
     CACHE 1;
 
 
@@ -1301,7 +1299,7 @@ CREATE TABLE exams (
     exam_descrip text,
     exam_code text,
     campus text,
-    "operator" text,
+    operator text,
     triggers_check text,
     radiologist text
 );
@@ -1351,7 +1349,7 @@ ALTER TABLE public.instance OWNER TO postgres;
 CREATE TABLE instance_binary_object (
     instance_uid text NOT NULL,
     date_of_exam text NOT NULL,
-    "header" character varying,
+    header character varying,
     content bytea
 );
 
@@ -1753,7 +1751,7 @@ transmit_gain	text	series
 -- Data for Name: exams; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY exams (mpi_pat_id, exam_uid, accession, date_of_exam, time_of_exam, refer_doc, exam_descrip, exam_code, campus, "operator", triggers_check, radiologist) FROM stdin;
+COPY exams (mpi_pat_id, exam_uid, accession, date_of_exam, time_of_exam, refer_doc, exam_descrip, exam_code, campus, operator, triggers_check, radiologist) FROM stdin;
 \.
 
 
@@ -1793,7 +1791,7 @@ COPY instance (exam_uid, series_uid, instance_uid, content_time, instance_number
 -- Data for Name: instance_binary_object; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY instance_binary_object (instance_uid, date_of_exam, "header", content) FROM stdin;
+COPY instance_binary_object (instance_uid, date_of_exam, header, content) FROM stdin;
 \.
 
 
@@ -2262,6 +2260,7 @@ focal_spot	tag00181190	58
 tube_voltage	tag00180060	58
 dose_SR	tag0040A730	58
 series_exposure	tag00181152	58
+image_freq	tag00180084	24848
 contrast_agent	tag00180010	58
 image_orientation	tag00200037	58
 flip_angle	tag00181340	40
@@ -2713,7 +2712,6 @@ weight	tag00101030	50
 SAR	tag00181316	50
 contrast_agent	tag00180010	50
 image_orientation	tag00200037	50
-image_freq	tag00180084	24848
 slice_thickness	tag00180050	24848
 field_strength	tag00180087	24848
 interslice_space	tag00180088	24848
@@ -3112,20 +3110,14 @@ CREATE INDEX series_mapped_values_series_uid_idx ON series_mapped_values USING b
 -- Name: run_dispatcher; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
-CREATE TRIGGER run_dispatcher
-    BEFORE INSERT ON patient
-    FOR EACH ROW
-    EXECUTE PROCEDURE run_dispatcher();
+CREATE TRIGGER run_dispatcher BEFORE INSERT ON patient FOR EACH ROW EXECUTE PROCEDURE run_dispatcher();
 
 
 --
 -- Name: trunc_uid; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
-CREATE TRIGGER trunc_uid
-    BEFORE INSERT ON alerts
-    FOR EACH ROW
-    EXECUTE PROCEDURE trunc_last_uid();
+CREATE TRIGGER trunc_uid BEFORE INSERT ON alerts FOR EACH ROW EXECUTE PROCEDURE trunc_last_uid();
 
 
 --
