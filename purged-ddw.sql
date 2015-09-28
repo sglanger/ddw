@@ -9,6 +9,23 @@ SET check_function_bodies = false;
 SET client_min_messages = warning;
 
 --
+-- Name: purged_ddw; Type: DATABASE; Schema: -; Owner: postgres
+--
+
+CREATE DATABASE purged_ddw WITH TEMPLATE = template0 ENCODING = 'UTF8' LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8';
+
+
+ALTER DATABASE purged_ddw OWNER TO postgres;
+
+\connect purged_ddw
+
+SET statement_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+--
 -- Name: purged_ddw; Type: COMMENT; Schema: -; Owner: postgres
 --
 
@@ -616,7 +633,7 @@ CREATE FUNCTION str2flt("in" text, exponent text) RETURNS double precision
 	sum double precision := 0;
 	sign int := 1;
 	exp int := 0;
-	digit int;
+	digit text;
 	asc_val int;
 begin
 	-- check if a decimal,and slice off everything to the right of it
@@ -629,7 +646,7 @@ begin
 		leftval := substr($1, 0, strpos($1, '.'));
 		rightval := substr($1, strpos($1, '.'), char_length($1)); 
 	end if;
-
+	
 	-- check if it is negative
 	if (strpos(leftval, '-') =1) then
 		sign := -1;
@@ -639,35 +656,27 @@ begin
 	-- now, build up the Float part of the leftVal
 	while char_length(leftval)> 0 loop
 		-- need to handle "invalid input" when substr hits a ',' or ' '
-		BEGIN 
-			digit := substr(leftval, char_length(leftval));
-			-- now check that digit is Numeric else ignore
-			select into asc_val ascii(digit);
-			if (asc_val > 47 AND asc_val < 58) then
-				sum := sum + 10^exp * digit ;	
-				exp := exp + 1 ;
-			end if;
-		EXCEPTION WHEN others then
-			-- do nothing
-		END; 
+		digit := substr(leftval, char_length(leftval)) ;
+		-- now check that digit is Numeric else ignore
+		select into asc_val ascii(digit);
+		--perform logger (func, 'leftval digit and asc: ' || digit  || ' ' || asc_val);
+		if (asc_val > 47 AND asc_val < 58) then
+			sum := sum + 10^exp * cast (digit as int) ;	
+			exp := exp + 1 ;
+		end if;
 		leftval := substr(leftval, 0, char_length(leftval) );
-		--perform logger (func, 'left val: ' || leftval || ' ' || sum);
 	end loop ;
 
 	-- now, build up the Float part of the rightVal
 	exp := -1 * char_length(rightval) + 1 ;
 	while char_length(rightval)> 0 loop
-		BEGIN 
-			digit := substr(rightval, char_length(rightval));
-			-- now check that digit is Numeric else ignore
-			select into asc_val ascii(digit);
-			if (asc_val > 47 AND asc_val < 58) then
-				sum := sum + 10^exp * digit ;	
-				exp := exp + 1 ;
-			end if;
-		EXCEPTION WHEN others then
-			-- do nothing
-		END; 
+		digit := substr(rightval, char_length(rightval));
+		-- now check that digit is Numeric else ignore
+		select into asc_val ascii(digit);
+		if (asc_val > 47 AND asc_val < 58) then
+			sum := sum + 10^exp * cast (digit as int) ;	
+			exp := exp + 1 ;
+		end if;
 		rightval := substr(rightval, 0, char_length(rightval) );
 		--perform logger (func, 'right val: ' || rightval || ' ' || sum);
 	end loop;
@@ -706,7 +715,7 @@ CREATE FUNCTION str2int(str text, exponent text) RETURNS integer
 	val text;
 	sum int;
 	exp int;
-	digit int;
+	digit text;
 	sign int;
 	asc_val int;
 begin
@@ -723,7 +732,7 @@ begin
 	else
 		val := substr($1, 0, strpos($1, '.'));
 	end if;
-
+	
 	-- check if it is negative
 	if (strpos(val, '-') =1) then
 		sign := -1;
@@ -732,19 +741,21 @@ begin
 
 	while char_length(val)> 0 loop
 		-- need to handle "invalid input" when substr hits a ',' or ' '
-		BEGIN 
+		BEGIN
 			digit := substr(val, char_length(val));
 			-- now check that digit is Numeric else ignore
 			select into asc_val ascii(digit);
 			if (asc_val > 47 AND asc_val < 58) then
-				sum := sum + 10^exp * digit ;	
+				sum := sum + 10^exp * cast (digit as int) ; 
 				exp := exp + 1 ;
+				perform logger (func, 'digit and exp ' || digit || ' ' || exp); 
 			end if;
 		EXCEPTION WHEN others then
-			-- do nothing
+			-- do nothing, just log error
+			perform logger (func, 'exception =' || others);
 		END; 
+		--perform logger (func, val || ' ' || sum);
 		val := substr(val, 0, char_length(val) );
-		--perform logger (func, digit || '  ' || val || ' ' || sum);
 	end loop ;
 	
 	-- THESE all have SAME problem, think $1 is NULL
@@ -1320,7 +1331,9 @@ COMMENT ON TABLE exams IS 'Location for Exam level, standard data that is not SO
 
 CREATE TABLE exams_to_process (
     exam_uid text NOT NULL,
-    last_touched timestamp without time zone DEFAULT now()
+    last_touched timestamp without time zone DEFAULT now(),
+    modality text,
+    run_trial integer
 );
 
 
@@ -1775,7 +1788,7 @@ COPY exams_mapped_values (exam_uid, std_name, value, unit) FROM stdin;
 -- Data for Name: exams_to_process; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY exams_to_process (exam_uid, last_touched) FROM stdin;
+COPY exams_to_process (exam_uid, last_touched, modality, run_trial) FROM stdin;
 \.
 
 
