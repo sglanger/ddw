@@ -1,3 +1,8 @@
+Project: DDW (the DICOM Data Warehouse)
+Associated Projects: ddw-docker-gway, ddw-docker-dbase
+
+Purpose: Use MIRTH to parse DICOM object headers and capture arbitrary tag/value pairs to Postgresql
+
 This project contains 10 files:
 a) this README
 b) 2 sh scripts to load and dump dbases from postgresQL
