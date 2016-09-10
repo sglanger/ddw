@@ -36,3 +36,10 @@ To test the system, make sure that both MIRTH and postgresql are running. Then d
 2) /media/dbase/error_images/transform.rtf
 
 Also, you should see new entries in the Patient, Exam and Series tables in the DDW dbase if the scanner is known. 
+
+
+
+Find papers on DDW here 
+http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3056966/  
+and 
+http://link.springer.com/article/10.1007/s10278-015-9830-4 
